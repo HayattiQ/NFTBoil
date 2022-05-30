@@ -1,0 +1,9 @@
+:root {
+  font-family: "Roboto", Sans-serif;
+  --primary: #00e3ff;
+  --primary-text: #bababa;
+  --secondary: #ffd936;
+  --secondary-text: #ffffff;
+  --accent: #505050;
+  --accent-text: #ffffff;
+}

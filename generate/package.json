@@ -1,0 +1,28 @@
+{
+  "name": "generate-nft-async",
+  "version": "1.0.0",
+  "description": "high speed generative art nft script",
+  "main": "index.ts",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "generate": "tsc && node  dist/index.js",
+    "thumbnail": "tsc && node  dist/thumbnail.js",
+    "tojson": "tsc && node  dist/toJson.js",
+    "shuffle": "metashu -i json/packed.json -o json/ -s 0x0863243f8d858815db8de23b7f1399b8f975672a750284209ac35e8d91d89afd"
+  },
+  "author": "hayatti",
+  "license": "MIT",
+  "dependencies": {
+    "@ndujalabs/metashu": "^0.2.2",
+    "axios": "^0.26.0",
+    "base-path-converter": "^1.0.2",
+    "commander": "^9.2.0",
+    "csv-parse": "^5.0.4",
+    "recursive-fs": "^2.1.0",
+    "sharp": "^0.30.1"
+  },
+  "devDependencies": {
+    "@types/sharp": "^0.29.5"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "name": "contract",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "hardhat compile",
+    "dev": "hardhat node",
+    "flatten": "poa-solidity-flattener ./contracts/KawaiiMetaCollage.sol",
+    "lint:eslint": "eslint . --ext ts,tsx",
+    "fix:eslint": "eslint . --ext ts,tsx --fix"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.6.0",
+    "@poanet/solidity-flattener": "^3.0.7",
+    "dotenv": "^16.0.0",
+    "keccak256": "^1.0.6",
+    "merkletreejs": "^0.2.31"
+  }
+}

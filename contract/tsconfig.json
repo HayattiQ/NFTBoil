@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es2021",
+    "outDir": "./dist/",
+    "sourceMap": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "importsNotUsedAsValues": "error",
+    "moduleResolution": "node",
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "noPropertyAccessFromIndexSignature": true,
+  },
+  "include": [
+    "./scripts",
+    "./test",
+    "./typechain-types"
+  ],
+  "files": [
+    "./hardhat.config.ts"
+  ]
+}

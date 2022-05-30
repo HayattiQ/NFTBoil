@@ -1,0 +1,56 @@
+{
+  "assset_dir": "assets/",
+  "output_dir": "output/",
+  "json_dir": "json/",
+  "thumbnail_dir": "thumbnail/",
+  "csv_file_name": "metadata.csv",
+  "max_image_generate": 5000,
+  "thumbnail": {
+    "width": 300,
+    "height": 300
+  },
+  "json_attributes": [
+    "background",
+    "body",
+    "clothes",
+    "face",
+    "special",
+    "mouth",
+    "hat",
+    "eyes"
+  ],
+  "traits": [
+    {
+      "name": "background",
+      "order": 1
+    },
+    {
+      "name": "body",
+      "order": 2
+    },
+    {
+      "name": "clothes",
+      "order": 3
+    },
+    {
+      "name": "face",
+      "order": 4
+    },
+    {
+      "name": "eyes",
+      "order": 5
+    },
+    {
+      "name": "mouth",
+      "order": 6
+    },
+    {
+      "name": "hat",
+      "order": 7
+    },
+    {
+      "name": "special",
+      "order": 8
+    }
+  ]
+}

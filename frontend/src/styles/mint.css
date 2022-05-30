@@ -1,0 +1,14 @@
+.background {
+  background-color: #F9EFFF;
+  background-image: url("background.png");
+  background-position: center center;
+  background-size: 530px auto;
+  display: flex;
+  justify-content: center;
+}
+
+.container {
+  padding-top: 30px;
+  max-width: 760px;
+  text-align: center;
+}
