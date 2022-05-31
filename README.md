@@ -29,6 +29,14 @@ WorkSpace の設定があるため、ルートディレクトリで npm install 
 
 ## コントラクトの設定
 
+NFTBoil において、コントラクトを二種類用意しています。この二つのコントラクトの違いは、
+プレセールの実装に MerkleTree を利用するかどうかです。
+デフォルトの設定は MerkleTree を利用するプログラムですので、もし MerkleTree を利用しない
+NFT コントラクトを実装する場合は、AstarCats.sol を利用してください。
+
+- KawaiiMetaCollage.sol (デフォルト) - MerkleTree
+- AstarCats.sol - MerkleTree なし
+
 ### env ファイルの設定
 
 コントラクトをデプロイするために必要な情報を env ファイルに書き込んでいきます。
@@ -161,3 +169,40 @@ for f in json/*; do mv "$f" "$f.json"; done
 ### JSON ファイルの IPFS へのアップ
 
 画像ファイルをアップロードしたのと同じ方法で JSON ファイルも IPFS にアップロードしてください。
+
+## mint web サイトの構築
+
+NFTboil では、 mint サイト のテンプレートを用意しています。
+開発者はこのテンプレートを編集することにより、mint サイトを簡単に作成することが可能です。
+
+### frontend の編集
+
+frontend は React を利用して構築されています。
+プロジェクトごとに frontend/src を書き換えて、自分のプロジェクトとしてページ作成してください。
+
+### config ファイルの編集
+
+frontend/public/config/config.json に、フロントエンドにて利用する config ファイルがあります。
+各プロジェクトにあわせて、それぞれの設定を書き換えてください。
+
+### ページのアップロード
+
+こちらの frontend はサーバサイドプログラムを利用していないため、 Netlify などの静的サーバにアップロードすることですぐに利用可能です。
+また、Netlify を使う時のため、 netlify.toml ファイルも用意しています。
+
+### MerkleTree の実装 (Optional)
+
+もしホワイトリストを利用したセールを実施するときのために、MerkleTree 機能も実装しています。
+MerkleTree は複雑な概念のため、こちらを読んで概略を掴んでください。
+https://medium.com/@ItsCuzzo/using-merkle-trees-for-nft-whitelists-523b58ada3f9
+
+# FAQ
+
+## なぜ ERC-721A ではなく ERC-721 なのですか
+
+ERC-721A は、多くのプロジェクトで使われているとはいえ、 OpenZeppelin で採用されている ERC721 と違い EIP の標準ではありません。
+今後永続的に NFT が残ることを考えると ERC-721 のほうがスタンダードです。
+また、ERC-721A は複数 mint 時のガス代しか安くならず、 Transfer においては逆にガス代が高くなることもあります。
+また、tokenOfOwnerByIndex が全ての発行済みトークンを走査するため、この関数をトランザクションの一部で実行した場合に、発行済みトークンの数だけ処理が実行されることになります。この処理は、ストレージの更新を伴わないため、1 つ 1 つは大きな gas となりませんが、膨大な数のトークンがある場合には注意が必要になったりします。
+
+mint 時のガス代が大きな問題にならない限り、ERC721 の利用をオススメします。
