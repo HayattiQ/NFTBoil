@@ -9,7 +9,7 @@
     "generate": "tsc && node  dist/index.js",
     "thumbnail": "tsc && node  dist/thumbnail.js",
     "tojson": "tsc && node  dist/toJson.js",
-    "shuffle": "metashu -i json/packed.json -o json/ -s 0x0863243f8d858815db8de23b7f1399b8f975672a750284209ac35e8d91d89afd"
+    "shuffle": "metashu -i json/packed.json -o json/"
   },
   "author": "hayatti",
   "license": "MIT",

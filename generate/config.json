@@ -9,16 +9,6 @@
     "width": 300,
     "height": 300
   },
-  "json_attributes": [
-    "background",
-    "body",
-    "clothes",
-    "face",
-    "special",
-    "mouth",
-    "hat",
-    "eyes"
-  ],
   "traits": [
     {
       "name": "background",

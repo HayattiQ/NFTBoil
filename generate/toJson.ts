@@ -1,15 +1,16 @@
-import { parse } from 'csv-parse/sync';
-import fs = require('fs');
+import { parse } from "csv-parse/sync";
+import fs = require("fs");
 import * as config from "./config.json";
-import { OptionValues, program } from 'commander';
+import { OptionValues, program } from "commander";
 
-program.option('-p, --pack');
+program.option("-p, --pack");
+program.option("-i, --indent", "output json add indent");
 program.parse();
 const options = program.opts();
-
+const indent_number = options["indent"] ? 2 : undefined;
 
 type CSVRecords = {
-  [key: string]: string
+  [key: string]: string;
 }[];
 
 type OpenSeaMetaData = {
@@ -22,14 +23,13 @@ type OpenSeaMetaData = {
     trait_type: string;
     value: string;
   }[];
-}
-
+};
 
 const isRecords = (records: any): records is CSVRecords => {
   if (!records) {
     return false;
   } else if (!Array.isArray(records)) {
-    return false
+    return false;
   }
 
   for (const rec of records) {
@@ -38,13 +38,12 @@ const isRecords = (records: any): records is CSVRecords => {
     }
   }
   return true;
-}
-
+};
 
 function main(options: OptionValues) {
   const data = fs.readFileSync(config.csv_file_name);
   const records: any = parse(data, {
-    columns: true
+    columns: true,
   });
 
   if (!isRecords(records)) {
@@ -54,36 +53,45 @@ function main(options: OptionValues) {
   if (!fs.existsSync(config.json_dir)) {
     fs.mkdirSync(config.json_dir);
   }
-  if (options['pack']) {
-    const metadata = JSON.stringify(records.map((rec) => convertMetaData(rec)));
-    fs.writeFileSync(config.json_dir + 'packed.json', metadata);
+  if (options["pack"]) {
+    const metadata = JSON.stringify(
+      records.map((rec) => convertMetaData(rec)),
+      null,
+      indent_number
+    );
+    fs.writeFileSync(config.json_dir + "packed.json", metadata);
   } else {
     for (const rec of records) {
-      const metadata = JSON.stringify(convertMetaData(rec));
-      fs.writeFileSync(config.json_dir + rec['id'] + '.json', metadata);
+      const metadata = JSON.stringify(
+        convertMetaData(rec),
+        null,
+        indent_number
+      );
+      fs.writeFileSync(config.json_dir + rec["id"] + ".json", metadata);
     }
   }
-
 }
 
-function convertMetaData(rec: { [key: string]: string; }): OpenSeaMetaData {
-  if (!rec["name"] || !rec["description"]) throw new Error("name or description is null")
+function convertMetaData(rec: { [key: string]: string }): OpenSeaMetaData {
+  if (!rec["name"] || !rec["description"])
+    throw new Error("name or description is null");
   let metadata: OpenSeaMetaData = {
-    name: rec['name'],
-    description: rec['description'],
-    external_url: rec['external_url'],
-    image: rec['image'],
-    background_color: rec['background_color'],
-    attributes: []
-  }
+    name: rec["name"],
+    description: rec["description"],
+    external_url: rec["external_url"],
+    image: rec["image"],
+    background_color: rec["background_color"],
+    attributes: [],
+  };
 
-
-  for (const att of config.json_attributes) {
-    metadata.attributes.push({ trait_type: att.charAt(0).toUpperCase() + att.slice(1), value: rec[att]! });
+  for (const att of config.traits) {
+    metadata.attributes.push({
+      trait_type: att.name.charAt(0).toUpperCase() + att.name.slice(1),
+      value: rec[att.name]!,
+    });
   }
 
   return metadata;
 }
-
 
 main(options);
