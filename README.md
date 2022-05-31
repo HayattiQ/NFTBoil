@@ -185,16 +185,21 @@ frontend は React を利用して構築されています。
 frontend/public/config/config.json に、フロントエンドにて利用する config ファイルがあります。
 各プロジェクトにあわせて、それぞれの設定を書き換えてください。
 
-### ページのアップロード
-
-こちらの frontend はサーバサイドプログラムを利用していないため、 Netlify などの静的サーバにアップロードすることですぐに利用可能です。
-また、Netlify を使う時のため、 netlify.toml ファイルも用意しています。
-
 ### MerkleTree の実装 (Optional)
 
 もしホワイトリストを利用したセールを実施するときのために、MerkleTree 機能も実装しています。
 MerkleTree は複雑な概念のため、こちらを読んで概略を掴んでください。
 https://medium.com/@ItsCuzzo/using-merkle-trees-for-nft-whitelists-523b58ada3f9
+
+MerkleTree を実装するときは、コントラクトに MerkleRoot を入れるのと、 frontend/functions/merkletree.ts に、
+MerkleTree に利用するアドレスを入れてください。
+
+### ページのアップロード
+
+こちらの frontend はサーバサイドプログラムを利用していないため、 Netlify などの静的サーバにアップロードすることですぐに利用可能です。
+また、Netlify を使う時のため、 netlify.toml ファイルも用意しています。
+
+こちらでページアップロードをすることで完成です！あなたのコレクションがよく売れることを願っています。
 
 # FAQ
 
