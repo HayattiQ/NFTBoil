@@ -16,11 +16,12 @@
     "noPropertyAccessFromIndexSignature": true,
   },
   "include": [
-    "./scripts",
-    "./test",
-    "./typechain-types"
+    "./contract/scripts",
+    "./contract/test",
+    "./generate/",
+    "./contract/typechain-types"
   ],
   "files": [
-    "./hardhat.config.ts"
+    "./contract/hardhat.config.ts"
   ]
 }
