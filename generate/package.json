@@ -4,8 +4,6 @@
   "description": "high speed generative art nft script",
   "main": "index.ts",
   "scripts": {
-    "build": "tsc",
-    "watch": "tsc --watch",
     "generate": "ts-node index.ts",
     "thumbnail": "ts-node  thumbnail.ts",
     "tojson": "ts-node  toJson.ts",
@@ -21,8 +19,5 @@
     "csv-parse": "^5.0.4",
     "recursive-fs": "^2.1.0",
     "sharp": "^0.30.1"
-  },
-  "devDependencies": {
-    "@types/sharp": "^0.29.5"
   }
 }
