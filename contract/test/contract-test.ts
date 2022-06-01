@@ -7,6 +7,7 @@ import {
   assertPublicMintSuccess,
   assertPreMint,
 } from "./test-helpers";
+//@ts-ignore
 import type { KawaiiMetaCollage } from "../typechain-types";
 import type { BigNumber } from "ethers";
 const { MerkleTree } = require("merkletreejs");

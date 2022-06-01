@@ -2,6 +2,7 @@ import { ethers } from "hardhat";
 import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 const { expect } = require("chai");
 import { test_config, assertPublicMintSuccess } from "./test-helpers";
+//@ts-ignore
 import type { KawaiiMetaCollage } from "../typechain-types";
 
 describe("Contract OwnerFunction test", function () {

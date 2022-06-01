@@ -15,19 +15,19 @@
       "order": 1
     },
     {
-      "name": "body",
+      "name": "back",
       "order": 2
     },
     {
-      "name": "clothes",
+      "name": "water back",
       "order": 3
     },
     {
-      "name": "face",
+      "name": "hair back",
       "order": 4
     },
     {
-      "name": "eyes",
+      "name": "face",
       "order": 5
     },
     {
@@ -35,12 +35,40 @@
       "order": 6
     },
     {
-      "name": "hat",
+      "name": "eyes",
       "order": 7
     },
     {
-      "name": "special",
+      "name": "clothes",
       "order": 8
+    },
+    {
+      "name": "hair",
+      "order": 9
+    },
+
+    {
+      "name": "mask",
+      "order": 10
+    },
+    {
+      "name": "glasses",
+      "order": 11
+    },
+    {
+      "name": "water",
+      "order": 11
     }
+    ,
+    {
+      "name": "water top",
+      "order": 12
+    },
+
+    {
+      "name": "hands",
+      "order": 13
+    }
+
   ]
 }

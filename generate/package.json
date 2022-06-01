@@ -6,9 +6,9 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc --watch",
-    "generate": "tsc && node  dist/index.js",
-    "thumbnail": "tsc && node  dist/thumbnail.js",
-    "tojson": "tsc && node  dist/toJson.js",
+    "generate": "ts-node index.ts",
+    "thumbnail": "ts-node  thumbnail.ts",
+    "tojson": "ts-node  toJson.ts",
     "shuffle": "metashu -i json/packed.json -o json/"
   },
   "author": "hayatti",
