@@ -12,7 +12,7 @@
   "NFT_NAME": "NFTBoilMerkle",
   "SYMBOL": "BOIL",
   "MAX_SUPPLY": 7000,
-  "GAS_LIMIT": null,
+  "GAS_LIMIT": 200000,
   "PAUSED": false,
   "MARKETPLACE": "OpenSea",
   "MARKETPLACE_LINK": "https://opensea.io/",

@@ -110,10 +110,8 @@ const Mint = () => {
     setClaimingNft(true);
     if (data.presale) {
       method = blockchain.smartContract.methods.preMint(mintAmount, merkle.hexProof);
-      console.log(method.estimateGas());
     } else {
       method =  blockchain.smartContract.methods.publicMint(mintAmount);
-      console.log(method.estimateGas());
     }
     method
       .send({

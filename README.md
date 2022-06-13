@@ -197,7 +197,7 @@ frontend/public/config/config.json に、フロントエンドにて利用する
 MerkleTree は複雑な概念のため、こちらを読んで概略を掴んでください。
 https://medium.com/@ItsCuzzo/using-merkle-trees-for-nft-whitelists-523b58ada3f9
 
-MerkleTree を実装するときは、コントラクトに MerkleRoot を入れるのと、 frontend/functions/merkletree.ts に、
+MerkleTree を実装するときは、frontend/functions/merkletree.ts に、
 MerkleTree に利用するアドレスを入れてください。
 
 ### ページのアップロード
