@@ -73,6 +73,7 @@ const Mint = () => {
   const dispatch = useDispatch();
   const blockchain = useSelector((state) => state.blockchain);
   const data = useSelector((state) => state.data);
+  const [merkle, setMerkle] = useState([]);
   const [claimingNft, setClaimingNft] = useState(false);
   const [feedback, setFeedback] = useState(`Click buy to mint your NFT.`);
   const [mintAmount, setMintAmount] = useState(1);
@@ -97,17 +98,21 @@ const Mint = () => {
     indicator: <Oval width="24" />,
   });
 
+
+
   const claimNFTs = () => {
     let cost = data.cost;
     let gasLimit = CONFIG.GAS_LIMIT;
+    let method = null;
     let totalCostWei = new BN(cost.toString()).muln(mintAmount);
     let totalGasLimit = String(gasLimit * mintAmount);
     setFeedback(`Minting your ${CONFIG.NFT_NAME}...`);
     setClaimingNft(true);
-    const method = data.presale
-      ? blockchain.smartContract.methods.preMint(mintAmount)
-      : blockchain.smartContract.methods.publicMint(mintAmount);
-
+    if (data.presale) {
+      method = blockchain.smartContract.methods.preMint(mintAmount, merkle.hexProof);
+    } else {
+      method =  blockchain.smartContract.methods.publicMint(mintAmount);
+    }
     method
       .send({
         gasLimit: String(totalGasLimit),
@@ -154,6 +159,22 @@ const Mint = () => {
       dispatch(fetchData(blockchain.account));
     }
   };
+  const getMerkleData = (account) => {
+  fetch("/.netlify/functions/merkletree?address="+ account)
+  .then(res => res.json())
+  .then(
+    (result) => {
+      console.log(result);
+      setMerkle(result);
+    },
+    (error) => {
+      console.log(error);
+    }
+  ).catch(error => {
+    console.error('通信に失敗しました', error);
+  });
+  }
+
 
   const getConfig = async () => {
     const configResponse = await fetch("/config/config.json", {
@@ -172,6 +193,9 @@ const Mint = () => {
 
   useEffect(() => {
     getData();
+    if(blockchain.account) {
+      getMerkleData(blockchain.account);
+    }
   }, [blockchain.account]);
 
   const BeforeConnect = () => {
@@ -213,6 +237,14 @@ const Mint = () => {
   };
 
   const BuyButton = () => {
+    if (data.presale && !merkle["hexProof"] ) {
+      return (<s.TextDescription
+        style={{
+          textAlign: "center",
+          color: "var(--accent-text)",
+        }}
+      >Your address don't eligible WhiteList</s.TextDescription>);
+    }
     return (
       <StyledButton
         disabled={claimingNft ? 1 : 0}
@@ -374,11 +406,9 @@ const Mint = () => {
             color: "var(--accent)",
           }}
         >
-          Catlist Price: 250 $ASTR
+          Pre/Public Price: 0.01ETH
           <br />
-          Public Price: 300 $ASTR
-          <br />
-          Catlist Max: 5 NFTs per address
+          WhiteList Max: 10 NFTs per address
           <br />
           Public Max: 10 NFTs per Transaction
         </s.TextDescription>

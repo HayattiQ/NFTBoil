@@ -21,13 +21,13 @@ const config: HardhatUserConfig = {
       chainId: 69,
       accounts: [getEnvVariable("ACCOUNT_PRIVATE_KEY")],
     },
-    mainnet: {
-      url: getEnvVariable("MAINNET_RPC", "https://infura.io/v3/"),
+    ethereum: {
+      url: getEnvVariable("MAINNET_RPC"),
       chainId: 1,
       accounts: [getEnvVariable("ACCOUNT_PRIVATE_KEY")],
     },
     rinkeby: {
-      url: getEnvVariable("RINKEBY_RPC", "https://rinkeby.infura.io/v3/"),
+      url: getEnvVariable("RINKEBY_RPC"),
       chainId: 4,
       accounts: [getEnvVariable("ACCOUNT_PRIVATE_KEY")],
     },

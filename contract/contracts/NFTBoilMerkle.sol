@@ -4,23 +4,27 @@ pragma solidity ^0.8.9;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
-import "hardhat/console.sol";
+import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Pausable.sol";
 
-contract AstarCats is ERC721Enumerable, Ownable {
+contract NFTBoilMerkle is ERC721Enumerable, Ownable, Pausable {
     using Strings for uint256;
 
     string baseURI = "";
-    string public baseExtension = ".json";
-    uint256 private preCost = 2 ether;
-    uint256 private publicCost = 3 ether;
-    uint256 public maxSupply = 7777;
-    uint256 public publicMaxPerTx = 10;
-    bool public paused = true;
+    uint256 public preCost = 0.01 ether;
+    uint256 public publicCost = 0.02 ether;
+
     bool public revealed = false;
     bool public presale = true;
     string public notRevealedUri;
-    uint256 private whiteListCount = 0;
-    mapping(address => uint256) private whiteLists;
+
+    uint256 constant maxSupply = 5000;
+    uint256 constant publicMaxPerTx = 10;
+    uint256 constant presaleMaxPerWallet = 5;
+    string constant baseExtension = ".json";
+    bytes32 public merkleRoot;
+
+    mapping(address => uint256) private whiteListClaimed;
 
     constructor(
         string memory _name,
@@ -31,7 +35,7 @@ contract AstarCats is ERC721Enumerable, Ownable {
     }
 
     // internal
-    function _baseURI() internal view virtual override returns (string memory) {
+    function _baseURI() internal view override returns (string memory) {
         return baseURI;
     }
 
@@ -51,20 +55,29 @@ contract AstarCats is ERC721Enumerable, Ownable {
         }
     }
 
-    // catlist mint
-    function preMint(uint256 _mintAmount) public payable {
+    function preMint(uint256 _mintAmount, bytes32[] calldata _merkleProof)
+        public
+        payable
+    {
         uint256 supply = totalSupply();
         uint256 cost = preCost * _mintAmount;
         mintCheck(_mintAmount, supply, cost);
         require(presale, "Presale is not active.");
+
+        bytes32 leaf = keccak256(abi.encodePacked(msg.sender));
         require(
-            whiteLists[msg.sender] >= _mintAmount,
-            "CL: Five cats max per address in Catlist."
+            MerkleProof.verify(_merkleProof, merkleRoot, leaf),
+            "Invalid Merkle Proof"
+        );
+
+        require(
+            whiteListClaimed[msg.sender] + _mintAmount <= presaleMaxPerWallet,
+            "Address already claimed max amount"
         );
 
         for (uint256 i = 1; i <= _mintAmount; i++) {
             _safeMint(msg.sender, supply + i);
-            whiteLists[msg.sender]--;
+            whiteListClaimed[msg.sender]++;
         }
     }
 
@@ -73,7 +86,6 @@ contract AstarCats is ERC721Enumerable, Ownable {
         uint256 supply,
         uint256 cost
     ) private view {
-        require(!paused, "Mint is not active.");
         require(_mintAmount > 0, "Mint amount cannot be zero");
         require(
             supply + _mintAmount <= maxSupply,
@@ -82,11 +94,12 @@ contract AstarCats is ERC721Enumerable, Ownable {
         require(msg.value >= cost, "Not enough funds provided for mint");
     }
 
-    function ownerMint(uint256 count) public onlyOwner {
+    function ownerMint(address _address, uint256 count) public onlyOwner {
         uint256 supply = totalSupply();
 
         for (uint256 i = 1; i <= count; i++) {
             _safeMint(msg.sender, supply + i);
+            safeTransferFrom(msg.sender, _address, supply + i);
         }
     }
 
@@ -123,16 +136,16 @@ contract AstarCats is ERC721Enumerable, Ownable {
         revealed = true;
     }
 
-    function is_revealed() public view returns (bool) {
-        return revealed;
-    }
-
     function setPresale(bool _state) public onlyOwner {
         presale = _state;
     }
 
-    function is_presaleActive() public view returns (bool) {
-        return presale;
+    function setPreCost(uint256 _preCost) public onlyOwner {
+        preCost = _preCost;
+    }
+
+    function setPublicCost(uint256 _publicCost) public onlyOwner {
+        publicCost = _publicCost;
     }
 
     function getCurrentCost() public view returns (uint256) {
@@ -151,61 +164,25 @@ contract AstarCats is ERC721Enumerable, Ownable {
         baseURI = _newBaseURI;
     }
 
-    function setBaseExtension(string memory _newBaseExtension)
-        public
-        onlyOwner
-    {
-        baseExtension = _newBaseExtension;
+    function pause() public onlyOwner {
+        _pause();
     }
 
-    function pause(bool _state) public onlyOwner {
-        paused = _state;
+    function unpause() public onlyOwner {
+        _unpause();
     }
 
-    function is_paused() public view returns (bool) {
-        return paused;
+    function withdraw() external onlyOwner {
+        uint256 royalty = address(this).balance;
+        Address.sendValue(payable(owner()), royalty);
     }
 
-    function deleteWL(address addr) public virtual onlyOwner {
-        whiteListCount = whiteListCount - whiteLists[addr];
-        delete (whiteLists[addr]);
+    /**
+     * @notice Set the merkle root for the allow list mint
+     */
+    function setMerkleRoot(bytes32 _merkleRoot) external onlyOwner {
+        merkleRoot = _merkleRoot;
     }
 
-    function updateWL(address addr, uint256 maxMint) public virtual onlyOwner {
-        whiteListCount = whiteListCount - whiteLists[addr];
-        whiteLists[addr] = maxMint;
-        whiteListCount = whiteListCount + maxMint;
-    }
 
-    function pushMultiWL(address[] memory list) public virtual onlyOwner {
-        for (uint256 i = 0; i < list.length; i++) {
-            whiteLists[list[i]]++;
-            whiteListCount++;
-        }
-    }
-
-    function getWhiteListCount() public view returns (uint256) {
-        return whiteListCount;
-    }
-
-    function withdraw() public virtual {
-        // DAO account 0xa7295305596a3e4953271585a8cb44dffd069c24
-        (bool dao, ) = payable(0xa7295305596a3E4953271585A8cB44DFfD069c24).call{
-            value: (address(this).balance * 30) / 100
-        }("");
-        require(dao);
-
-        // TEAM account 0x7D7C9681342DdB120D4239C82f4603D09dA67F01
-        (bool team, ) = payable(0x7D7C9681342DdB120D4239C82f4603D09dA67F01)
-            .call{value: address(this).balance}("");
-        require(team);
-    }
-
-    function whiteListCountOfOwner(address owner)
-        public
-        view
-        returns (uint256)
-    {
-        return whiteLists[owner];
-    }
 }

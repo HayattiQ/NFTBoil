@@ -1,34 +1,18 @@
 {
-  "CONTRACT_ADDRESS": "0xED42b8828178d515cD5Dbc47A2d894d3eAF664c5",
-  "SCAN_LINK": "https://blockscout.com/astar/address/0x8b5d62f396Ca3C6cF19803234685e693733f9779",
+  "CONTRACT_ADDRESS": "0xaf324279257d5F9b2271eB07EfA222Eb46272eEf",
+  "SCAN_LINK": "https://rinkeby.etherscan.io/address/0xaf324279257d5F9b2271eB07EfA222Eb46272eEf",
   "NETWORK": {
-    "NAME": "Rinkeby ",
+    "NAME": "Rinkeby",
     "SYMBOL": "ETH",
     "ID": 4,
     "DECIMALS": 18,
-    "RPC_URL": "https://eth-rinkeby.alchemyapi.io/v2/",
+    "RPC_URL": "https://eth-rinkeby.alchemyapi.io/v2/WG68WJV_dEDvQY7Lnyt5ZxwK6FBCEHLJ",
     "BLOCK_EXPLORER_URL": "https://rinkeby.etherscan.io/"
   },
-  "NETWORK_shibuya": {
-    "NAME": "shibuya",
-    "SYMBOL": "SBY",
-    "ID": 81,
-    "DECIMALS": 18,
-    "RPC_URL": "https://rpc.shibuya.astar.network:8545",
-    "BLOCK_EXPLORER_URL": "https://shibuya.subscan.io"
-  },
-  "NETWORK_localhost": {
-    "NAME": "localhost",
-    "SYMBOL": "ETH",
-    "ID": 31337,
-    "DECIMALS": 18,
-    "RPC_URL": "https://rpc.astar.network:8545",
-    "BLOCK_EXPLORER_URL": "https://astar.subscan.io"
-  },
-  "NFT_NAME": "Kawaii Meta Collage",
-  "SYMBOL": "KMT",
+  "NFT_NAME": "NFTBoilMerkle",
+  "SYMBOL": "BOIL",
   "MAX_SUPPLY": 7000,
-  "GAS_LIMIT": 300000,
+  "GAS_LIMIT": null,
   "PAUSED": false,
   "MARKETPLACE": "OpenSea",
   "MARKETPLACE_LINK": "https://opensea.io/",

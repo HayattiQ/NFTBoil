@@ -34,8 +34,8 @@ NFTBoil において、コントラクトを二種類用意しています。こ
 デフォルトの設定は MerkleTree を利用するプログラムですので、もし MerkleTree を利用しない
 NFT コントラクトを実装する場合は、AstarCats.sol を利用してください。
 
-- KawaiiMetaCollage.sol (デフォルト) - MerkleTree
-- AstarCats.sol - MerkleTree なし
+- NFTBoilMerkle.sol (デフォルト) - MerkleTree
+- NFTBoil.sol - MerkleTree なし
 
 ### env ファイルの設定
 
@@ -91,7 +91,7 @@ out/ ファイルにて生成されるコードを、etherscan の verify にて
 
 mainnet へデプロイするときは下記のコマンドでできます。
 Ethereum の場合、ガス代が大きくかかるのでご注意ください。
-`npx hardhat run scripts/deploy.ts --network mainnet`
+`npx hardhat run scripts/deploy.ts --network ethereum`
 
 ## ジェネレーティブ画像生成
 
