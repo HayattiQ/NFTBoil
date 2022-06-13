@@ -22,6 +22,9 @@ NFTboil は monorepo で作成されています。
 - generate - ジェネレーティブ用の画像生成をするプログラムです。
 - frontend - mint 用の Web サイトです。
 
+また、Rinkeby testnetにて今回のNFTBoilに初期設定されているデータをもとにNFT minting サイトを作っています。
+https://nftboil.netlify.app/
+
 ## Install
 
 `npm install`
