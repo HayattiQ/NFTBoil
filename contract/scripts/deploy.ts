@@ -8,12 +8,14 @@ async function main() {
   console.log("Deploying ERC721 token...");
   const token = await deploycontract.deploy(
     getEnvVariable("CONTRACT_NAME"),
-    getEnvVariable("CONTRACT_SYMBOL"),
-    getEnvVariable("IPFS_JSON")
+    getEnvVariable("CONTRACT_SYMBOL")
   );
 
   await token.deployed();
   console.log("Contract deployed to:", token.address);
+  const transactionResponse = await token["setNotRevealedURI"](getEnvVariable("IPFS_JSON"));
+  console.log(`setNotRevealedURI: ${transactionResponse.hash}`);
+
 }
 
 main()

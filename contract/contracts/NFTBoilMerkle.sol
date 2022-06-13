@@ -28,10 +28,8 @@ contract NFTBoilMerkle is ERC721Enumerable, Ownable, Pausable {
 
     constructor(
         string memory _name,
-        string memory _symbol,
-        string memory _initNotRevealedUri
+        string memory _symbol
     ) ERC721(_name, _symbol) {
-        setNotRevealedURI(_initNotRevealedUri);
     }
 
     // internal
