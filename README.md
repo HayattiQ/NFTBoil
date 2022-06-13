@@ -80,7 +80,13 @@ Ethereum チェーンでデプロイする前提であれば、まずはテス�
 ### コントラクトの verify
 
 信頼性担保のため、コントラクトは必ず verify しましょう。
-コントラクトの verify は etherscan から行います。
+コントラクトのverifyは、hardhat/etherscan があらかじめ用意されているので、console上で可能です。
+
+`npx hardhat verify --network rinkeby 0xbB69881dB7097E93038D1d516fB1096759CeF25F NFTBoilMerkle BOIL`
+上記例のように、contract addressと、contract name, contract symbol を引数に入れてください。
+
+コントラクトの verify は etherscanのWebUIからも行うことができます。
+その際は、まずetherscanのコントラクトのページに行き、そこから「vefify and publish」でverify可能です。
 また、コントラクトを verify するためには、Flat 化したソースコードが必要です。こちらのコマンドで flat 化できます。
 
 `npm run flatten`
