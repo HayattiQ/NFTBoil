@@ -19,7 +19,6 @@ describe(`${test_config.contract_name} contract`, function () {
   let ad: NFTBoilMerkle;
   let addrs;
 
-  const not_revealed_uri = "not_revealed_uri";
 
   beforeEach(async function () {
     // @ts-ignore
@@ -261,12 +260,14 @@ describe(`${test_config.contract_name} contract`, function () {
 
     it("URI not visible before reveal", async function () {
       const degenCost = await ad.getCurrentCost();
+      await ad.setNotRevealedURI("ipfs://test/");
       expect(await ad.publicMint(1, { value: degenCost })).to.be.ok;
-      expect(await ad.tokenURI(1)).to.equal(not_revealed_uri);
+      expect(await ad.tokenURI(1)).to.equal("ipfs://test/");
     });
 
     it("URI visible after reveal", async function () {
-      expect(ad.reveal()).to.be.ok;
+      await ad.setNotRevealedURI("ipfs://test/");
+      expect(await ad.reveal()).to.be.ok;
 
       const degenCost = await ad.getCurrentCost();
       expect(await ad.publicMint(5, { value: degenCost.mul(5) })).to.be.ok;
