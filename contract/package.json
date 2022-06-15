@@ -6,7 +6,7 @@
   "scripts": {
     "build": "hardhat compile",
     "dev": "hardhat node",
-    "flatten": "poa-solidity-flattener ./contracts/KawaiiMetaCollage.sol",
+    "flatten": "poa-solidity-flattener ./contracts/*",
     "lint:eslint": "eslint . --ext ts,tsx",
     "fix:eslint": "eslint . --ext ts,tsx --fix"
   },

@@ -5,11 +5,19 @@ require("./scripts/tasks");
 import { getEnvVariable } from "./scripts/helpers";
 import "@typechain/hardhat";
 import "@nomiclabs/hardhat-etherscan";
-
+import "hardhat-gas-reporter"
 
 const config: HardhatUserConfig = {
   defaultNetwork: "localhost",
-  solidity: "0.8.9",
+  solidity: {
+    version: "0.8.9",
+    settings: {
+       optimizer: {
+         enabled: true,
+         runs: 200,
+     }
+    }
+   },
   etherscan: {
     // Your API key for Etherscan
     // Obtain one at https://etherscan.io/

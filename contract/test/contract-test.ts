@@ -7,8 +7,7 @@ import {
   assertPublicMintSuccess,
   assertPreMint,
 } from "./test-helpers";
-//@ts-ignore
-import type { KawaiiMetaCollage } from "../typechain-types";
+import type { NFTBoilMerkle } from "../typechain-types";
 import type { BigNumber } from "ethers";
 const { MerkleTree } = require("merkletreejs");
 const keccak256 = require("keccak256");
@@ -17,7 +16,7 @@ describe(`${test_config.contract_name} contract`, function () {
   let owner: SignerWithAddress;
   let bob: SignerWithAddress;
   let alis: SignerWithAddress;
-  let ad: KawaiiMetaCollage;
+  let ad: NFTBoilMerkle;
   let addrs;
 
   const not_revealed_uri = "not_revealed_uri";
@@ -28,9 +27,8 @@ describe(`${test_config.contract_name} contract`, function () {
     const contract = await ethers.getContractFactory(test_config.contract_name);
     ad = (await contract.deploy(
       test_config.contract_name,
-      test_config.symbol,
-      not_revealed_uri
-    )) as KawaiiMetaCollage;
+      test_config.symbol
+    )) as NFTBoilMerkle;
     await ad.deployed();
 
     // Ensure contract is paused/disabled on deployment
