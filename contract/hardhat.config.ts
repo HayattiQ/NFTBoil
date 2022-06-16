@@ -30,6 +30,9 @@ const config: HardhatUserConfig = {
       rinkeby: process.env["ETH_API"]!
     }
   },
+  gasReporter: {
+    enabled: (process.env["REPORT_GAS"]) ? true : false
+  },
   networks: {
     localhost: {
       url: "http://localhost:8545",
