@@ -10,7 +10,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Pausable.sol";
 contract NFTBoilMerkle is ERC721Enumerable, Ownable, Pausable {
     using Strings for uint256;
 
-    string baseURI = "";
+    string public baseURI = "";
     uint256 public preCost = 0.01 ether;
     uint256 public publicCost = 0.02 ether;
 
@@ -18,10 +18,10 @@ contract NFTBoilMerkle is ERC721Enumerable, Ownable, Pausable {
     bool public presale = true;
     string public notRevealedUri;
 
-    uint256 constant maxSupply = 5000;
-    uint256 constant publicMaxPerTx = 10;
-    uint256 constant presaleMaxPerWallet = 5;
-    string constant baseExtension = ".json";
+    uint256 constant public MAX_SUPPLY = 5000;
+    uint256 constant public PUBLIC_MAX_PER_TX = 10;
+    uint256 constant public PRESALE_MAX_PER_WALLET = 5;
+    string constant public BASE_EXTENSION = ".json";
     bytes32 public merkleRoot;
 
     mapping(address => uint256) private whiteListClaimed;
@@ -44,7 +44,7 @@ contract NFTBoilMerkle is ERC721Enumerable, Ownable, Pausable {
         mintCheck(_mintAmount, supply, cost);
         require(!presale, "Public mint is paused while Presale is active.");
         require(
-            _mintAmount <= publicMaxPerTx,
+            _mintAmount <= PUBLIC_MAX_PER_TX,
             "Mint amount cannot exceed 10 per Tx."
         );
 
@@ -69,7 +69,7 @@ contract NFTBoilMerkle is ERC721Enumerable, Ownable, Pausable {
         );
 
         require(
-            whiteListClaimed[msg.sender] + _mintAmount <= presaleMaxPerWallet,
+            whiteListClaimed[msg.sender] + _mintAmount <= PRESALE_MAX_PER_WALLET,
             "Address already claimed max amount"
         );
 
@@ -86,7 +86,7 @@ contract NFTBoilMerkle is ERC721Enumerable, Ownable, Pausable {
     ) private view {
         require(_mintAmount > 0, "Mint amount cannot be zero");
         require(
-            supply + _mintAmount <= maxSupply,
+            supply + _mintAmount <= MAX_SUPPLY,
             "Total supply cannot exceed maxSupply"
         );
         require(msg.value >= cost, "Not enough funds provided for mint");
@@ -124,7 +124,7 @@ contract NFTBoilMerkle is ERC721Enumerable, Ownable, Pausable {
                     abi.encodePacked(
                         currentBaseURI,
                         tokenId.toString(),
-                        baseExtension
+                        BASE_EXTENSION
                     )
                 )
                 : "";
@@ -171,8 +171,7 @@ contract NFTBoilMerkle is ERC721Enumerable, Ownable, Pausable {
     }
 
     function withdraw() external onlyOwner {
-        uint256 royalty = address(this).balance;
-        Address.sendValue(payable(owner()), royalty);
+        Address.sendValue(payable(owner()), address(this).balance);
     }
 
     /**

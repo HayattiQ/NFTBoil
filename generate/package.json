@@ -9,7 +9,7 @@
     "tojson": "ts-node  toJson.ts",
     "shuffle": "metashu -i json/packed.json -o json/"
   },
-  "author": "hayatti",
+  "author": "hayattiQ",
   "license": "MIT",
   "dependencies": {
     "@ndujalabs/metashu": "^0.2.2",

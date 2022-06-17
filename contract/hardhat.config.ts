@@ -7,7 +7,6 @@ import '@typechain/hardhat'
 import '@nomiclabs/hardhat-etherscan'
 import 'hardhat-gas-reporter'
 import './scripts/tasks'
-import '@nomiclabs/hardhat-solhint'
 
 const config: HardhatUserConfig = {
   defaultNetwork: 'localhost',
