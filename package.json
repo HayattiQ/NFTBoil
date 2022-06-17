@@ -42,8 +42,8 @@
     "type": "git",
     "url": "git+https://github.com/HayattiQ/NFTBoil.git"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "HayattiQ",
+  "license": "MIT",
   "lint-staged": {
     "*.{js,ts,tsx}": "eslint --cache --fix",
     "*.{js,ts,tsx,md,json}": "prettier --write"

@@ -12,8 +12,8 @@
     "fix:eslint": "eslint . --ext ts,tsx --fix"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "HayattiQ",
+  "license": "MIT",
   "dependencies": {
     "@openzeppelin/contracts": "^4.6.0",
     "@poanet/solidity-flattener": "^3.0.7",
