@@ -30,19 +30,19 @@ export const handler: Handler = async (event, context) => {
       statusCode: 400,
       body: JSON.stringify({
         address,
-        message: 'your address can not verify'
-      })
+        message: 'your address can not verify',
+      }),
     }
   }
 
   return {
     statusCode: 200,
     body: JSON.stringify({
-      hexProof
-    })
+      hexProof,
+    }),
   }
 }
 const addresses = [
   '0x813c6726e40cbcdff33d27324b9ae77a4e4d43fd',
-  '0xb13dAc27BEbF08778ac5aEC9387E56413773B875'
+  '0xb13dAc27BEbF08778ac5aEC9387E56413773B875',
 ]

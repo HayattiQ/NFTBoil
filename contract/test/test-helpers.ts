@@ -10,10 +10,10 @@ export const testConfig = {
   max_supply: 5000,
   max_mint: 10,
   presale_max_mint: 5,
-  symbol: 'BOIL'
+  symbol: 'BOIL',
 }
 
-export async function assertPreMint (
+export async function assertPreMint(
   ad: any,
   cost: BigNumber,
   signer: SignerWithAddress,
@@ -24,7 +24,7 @@ export async function assertPreMint (
   const tokenId = await ad.totalSupply()
   expect(
     await ad.connect(signer).preMint(num, hexProof, {
-      value: cost
+      value: cost,
     })
   )
     .to.emit(ad, 'Transfer')
@@ -36,7 +36,7 @@ export async function assertPreMint (
   expect(await ad.totalSupply()).to.equal(num + alreadySupply)
 }
 
-export async function assertPublicMintSuccess (
+export async function assertPublicMintSuccess(
   ad: any,
   cost: number | BigNumber,
   signer: SignerWithAddress,
@@ -47,7 +47,7 @@ export async function assertPublicMintSuccess (
 
   expect(
     await ad.connect(signer).publicMint(num, {
-      value: cost
+      value: cost,
     })
   )
     .to.emit(ad, 'Transfer')

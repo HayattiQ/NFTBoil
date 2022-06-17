@@ -58,8 +58,7 @@
     {
       "name": "water",
       "order": 11
-    }
-    ,
+    },
     {
       "name": "water top",
       "order": 12
@@ -69,6 +68,5 @@
       "name": "hands",
       "order": 13
     }
-
   ]
 }

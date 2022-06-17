@@ -13,7 +13,7 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,
-    "noPropertyAccessFromIndexSignature": true,
+    "noPropertyAccessFromIndexSignature": true
   },
   "include": [
     "./contract/scripts",
@@ -21,7 +21,5 @@
     "./generate/",
     "./contract/typechain-types"
   ],
-  "files": [
-    "./contract/hardhat.config.ts"
-  ]
+  "files": ["./contract/hardhat.config.ts"]
 }

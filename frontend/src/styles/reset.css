@@ -120,7 +120,7 @@ blockquote:before,
 blockquote:after,
 q:before,
 q:after {
-  content: "";
+  content: '';
   content: none;
 }
 
@@ -130,8 +130,8 @@ table {
 }
 
 @font-face {
-  font-family: "coder";
-  src: local("coder"), url(font.woff) format("woff");
+  font-family: 'coder';
+  src: local('coder'), url(font.woff) format('woff');
 }
 
 body {
@@ -147,7 +147,7 @@ body {
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
 
@@ -163,7 +163,7 @@ body {
 }
 
 html {
-  background-color: "#4C4C4C";
+  background-color: '#4C4C4C';
 }
 
 div {

@@ -1,24 +1,24 @@
-import fs = require('fs');
+import fs = require('fs')
 import { parse } from 'csv-parse/sync'
-import sharp = require('sharp');
+import sharp = require('sharp')
 import * as traitConfig from './config.json'
 
 const data = fs.readFileSync('metadata.csv')
 
 type TraitData = {
-  id: string;
+  id: string
   attributes: {
-    [key: string]: string;
-  };
-};
+    [key: string]: string
+  }
+}
 
 type CSVRecords = {
-  [key: string]: string;
-}[];
+  [key: string]: string
+}[]
 
 const records: any = parse(data, {
   encoding: 'utf8',
-  columns: true
+  columns: true,
 })
 
 const isRecords = (records: any): records is CSVRecords => {
@@ -36,7 +36,7 @@ const isRecords = (records: any): records is CSVRecords => {
   return true
 }
 
-function traitMatch (rec: { [key: string]: string }) {
+function traitMatch(rec: { [key: string]: string }) {
   // eslint-disable-next-line dot-notation
   if (!rec['id']) {
     console.log(rec)
@@ -45,7 +45,7 @@ function traitMatch (rec: { [key: string]: string }) {
   const trait: TraitData = {
     // eslint-disable-next-line dot-notation
     id: rec['id'],
-    attributes: {}
+    attributes: {},
   }
 
   for (const [key, value] of Object.entries(rec)) {
@@ -56,7 +56,7 @@ function traitMatch (rec: { [key: string]: string }) {
   return trait
 }
 
-function toTraitData (records: CSVRecords): TraitData[] {
+function toTraitData(records: CSVRecords): TraitData[] {
   const traits: TraitData[] = []
   for (const rec of records) {
     traits.push(traitMatch(rec))
@@ -64,7 +64,7 @@ function toTraitData (records: CSVRecords): TraitData[] {
   return traits
 }
 
-function main (records: any) {
+function main(records: any) {
   if (!isRecords(records)) {
     throw new Error('records type is invalid')
   }
@@ -80,7 +80,7 @@ function main (records: any) {
   }
 }
 
-async function compositeImage (trait: TraitData, zeroPaddingLength: number) {
+async function compositeImage(trait: TraitData, zeroPaddingLength: number) {
   const attributes = Object.entries(trait.attributes)
     .map(([key, value]) => ({ key, value }))
     .sort(fnSort)
@@ -103,12 +103,10 @@ async function compositeImage (trait: TraitData, zeroPaddingLength: number) {
   }
   try {
     const firstTraitPath =
-      traitConfig.assset_dir +
-      firstTrait.key +
-      '/' +
-      firstTrait.value +
-      '.png'
-    if (!fs.existsSync(firstTraitPath)) { console.log('First trait path is null. ' + firstTraitPath) }
+      traitConfig.assset_dir + firstTrait.key + '/' + firstTrait.value + '.png'
+    if (!fs.existsSync(firstTraitPath)) {
+      console.log('First trait path is null. ' + firstTraitPath)
+    }
     const image = sharp(firstTraitPath)
     image.composite(restTrait)
     const fileName = zeroPadding(trait.id, zeroPaddingLength) + '.png'
@@ -129,7 +127,7 @@ async function compositeImage (trait: TraitData, zeroPaddingLength: number) {
 
 main(records)
 
-function fnSort (
+function fnSort(
   a: { key: string; value: string },
   b: { key: string; value: string }
 ) {
@@ -139,6 +137,6 @@ function fnSort (
   )
 }
 
-function zeroPadding (num: string, len: number) {
+function zeroPadding(num: string, len: number) {
   return (Array(len).join('0') + num).slice(-len)
 }

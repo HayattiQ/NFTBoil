@@ -1,0 +1,5 @@
+contract/artifacts
+contract/cache
+node_modules
+contract/typechain-types
+generate/json

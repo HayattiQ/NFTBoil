@@ -13,7 +13,7 @@ describe('Contract OwnerFunction test', function () {
 
   beforeEach(async function () {
     // @ts-ignore
-    [owner, bob, alis] = await ethers.getSigners()
+    ;[owner, bob, alis] = await ethers.getSigners()
     const contract = await ethers.getContractFactory(testConfig.contract_name)
     ad = (await contract.deploy(
       testConfig.contract_name,

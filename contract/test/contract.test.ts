@@ -4,7 +4,7 @@ import type { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import {
   testConfig,
   assertPublicMintSuccess,
-  assertPreMint
+  assertPreMint,
 } from './test-helpers'
 import type { NFTBoilMerkle } from '../typechain-types'
 import type { BigNumber } from 'ethers'
@@ -21,7 +21,7 @@ describe(`${testConfig.contract_name} contract`, function () {
 
   beforeEach(async function () {
     // @ts-ignore
-    [owner, bob, alis] = await ethers.getSigners()
+    ;[owner, bob, alis] = await ethers.getSigners()
     const contract = await ethers.getContractFactory(testConfig.contract_name)
     ad = (await contract.deploy(
       testConfig.contract_name,
@@ -80,7 +80,7 @@ describe(`${testConfig.contract_name} contract`, function () {
       expect(await ad.totalSupply()).to.equal(0)
       expect(
         await ad.publicMint(1, {
-          value: degenCost
+          value: degenCost,
         })
       )
         .to.emit(ad, 'Transfer')
@@ -90,7 +90,7 @@ describe(`${testConfig.contract_name} contract`, function () {
       tokenId = await ad.totalSupply()
       expect(
         await ad.connect(bob).publicMint(1, {
-          value: degenCost
+          value: degenCost,
         })
       )
         .to.emit(ad, 'Transfer')
@@ -117,7 +117,7 @@ describe(`${testConfig.contract_name} contract`, function () {
 
       expect(
         await ad.connect(bob).publicMint(testConfig.max_mint, {
-          value: degenCost.mul(testConfig.max_mint)
+          value: degenCost.mul(testConfig.max_mint),
         })
       )
         .to.emit(ad, 'Transfer')
@@ -135,7 +135,7 @@ describe(`${testConfig.contract_name} contract`, function () {
 
       expect(
         await ad.connect(bob).publicMint(1, {
-          value: degenCost.mul(1)
+          value: degenCost.mul(1),
         })
       )
         .to.emit(ad, 'Transfer')
@@ -144,7 +144,7 @@ describe(`${testConfig.contract_name} contract`, function () {
 
       expect(
         await ad.connect(bob).publicMint(testConfig.max_mint - 1, {
-          value: degenCost.mul(testConfig.max_mint - 1)
+          value: degenCost.mul(testConfig.max_mint - 1),
         })
       )
         .to.emit(ad, 'Transfer')
@@ -161,7 +161,7 @@ describe(`${testConfig.contract_name} contract`, function () {
 
       await expect(
         ad.connect(bob).publicMint(testConfig.max_mint + 1, {
-          value: degenCost.mul(testConfig.max_mint + 1)
+          value: degenCost.mul(testConfig.max_mint + 1),
         })
       ).to.revertedWith('Mint amount cannot exceed 10 per Tx.')
     })
@@ -216,7 +216,7 @@ describe(`${testConfig.contract_name} contract`, function () {
       )
       await expect(
         ad.connect(bob).publicMint(testConfig.max_mint, {
-          value: cost.mul(testConfig.max_mint).sub(1)
+          value: cost.mul(testConfig.max_mint).sub(1),
         })
       ).to.revertedWith('Not enough funds provided for mint')
 
@@ -299,13 +299,13 @@ describe(`${testConfig.contract_name} contract`, function () {
     it('Non Whitelisted user cant buy on PreSale', async function () {
       await expect(
         ad.connect(bob).preMint(1, hexProofs[1], {
-          value: mintCost
+          value: mintCost,
         })
       ).to.be.revertedWith('Invalid Merkle Proof')
 
       await expect(
         ad.connect(owner).preMint(1, hexProofs[0], {
-          value: mintCost
+          value: mintCost,
         })
       ).to.be.revertedWith('Invalid Merkle Proof')
 
@@ -399,7 +399,8 @@ describe(`${testConfig.contract_name} contract`, function () {
       await assertPreMint(ad, mintCost.mul(5), alis, hexProofs[2], 5)
       expect(
         await ad
-          .connect(alis)['safeTransferFrom(address,address,uint256)'](
+          .connect(alis)
+          ['safeTransferFrom(address,address,uint256)'](
             alis.address,
             bob.address,
             1

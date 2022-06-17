@@ -8,6 +8,7 @@
     "dev": "hardhat node",
     "flatten": "poa-solidity-flattener ./contracts/*",
     "lint:eslint": "eslint . --ext ts,tsx",
+    "format": "prettier --write .",
     "fix:eslint": "eslint . --ext ts,tsx --fix"
   },
   "keywords": [],

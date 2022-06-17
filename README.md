@@ -22,7 +22,7 @@ NFTboil は monorepo で作成されています。
 - generate - ジェネレーティブ用の画像生成をするプログラムです。
 - frontend - mint 用の Web サイトです。
 
-また、Rinkeby testnetにて今回のNFTBoilに初期設定されているデータをもとにNFT minting サイトを作っています。
+また、Rinkeby testnet にて今回の NFTBoil に初期設定されているデータをもとに NFT minting サイトを作っています。
 https://nftboil.netlify.app/
 
 ## Install
@@ -83,13 +83,13 @@ Ethereum チェーンでデプロイする前提であれば、まずはテス�
 ### コントラクトの verify
 
 信頼性担保のため、コントラクトは必ず verify しましょう。
-コントラクトのverifyは、hardhat/etherscan があらかじめ用意されているので、console上で可能です。
+コントラクトの verify は、hardhat/etherscan があらかじめ用意されているので、console 上で可能です。
 
 `npx hardhat verify --network rinkeby 0xbB69881dB7097E93038D1d516fB1096759CeF25F NFTBoilMerkle BOIL`
-上記例のように、contract addressと、contract name, contract symbol を引数に入れてください。
+上記例のように、contract address と、contract name, contract symbol を引数に入れてください。
 
-コントラクトの verify は etherscanのWebUIからも行うことができます。
-その際は、まずetherscanのコントラクトのページに行き、そこから「vefify and publish」でverify可能です。
+コントラクトの verify は etherscan の WebUI からも行うことができます。
+その際は、まず etherscan のコントラクトのページに行き、そこから「vefify and publish」で verify 可能です。
 また、コントラクトを verify するためには、Flat 化したソースコードが必要です。こちらのコマンドで flat 化できます。
 
 `npm run flatten`

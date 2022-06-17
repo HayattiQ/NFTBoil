@@ -1,7 +1,7 @@
 import hre from 'hardhat'
 import { getEnvVariable } from './helpers'
 
-async function main () {
+async function main() {
   const deploycontract = await hre.ethers.getContractFactory(
     getEnvVariable('CONTRACT_NAME')
   )
@@ -13,7 +13,9 @@ async function main () {
 
   await token.deployed()
   console.log('Contract deployed to:', token.address)
-  const transactionResponse = await token.setNotRevealedURI(getEnvVariable('IPFS_JSON'))
+  const transactionResponse = await token.setNotRevealedURI(
+    getEnvVariable('IPFS_JSON')
+  )
   console.log(`setNotRevealedURI: ${transactionResponse.hash}`)
 }
 

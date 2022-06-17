@@ -1,6 +1,6 @@
-import React from "react";
-import MintPage from "./MintPage";
-import "./styles/mint.css";
+import React from 'react'
+import MintPage from './MintPage'
+import './styles/mint.css'
 
 function App() {
   return (
@@ -10,7 +10,7 @@ function App() {
         <MintPage />
       </div>
     </div>
-  );
+  )
 }
 
-export default App;
+export default App

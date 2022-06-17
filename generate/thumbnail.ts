@@ -1,18 +1,23 @@
-import sharp = require('sharp');
+import sharp = require('sharp')
 import * as traitConfig from './config.json'
-import fs = require('fs');
+import fs = require('fs')
 import { Command, Option } from 'commander'
 
 interface ThumbnailOptions {
-increment: number;
+  increment: number
 }
 
-const program = new Command().addOption(new Option('-i, --increment <number>', 'Thumbnail File increment number').default(0, 'zero'))
-const options:ThumbnailOptions = program.parse().opts()
+const program = new Command().addOption(
+  new Option(
+    '-i, --increment <number>',
+    'Thumbnail File increment number'
+  ).default(0, 'zero')
+)
+const options: ThumbnailOptions = program.parse().opts()
 
 const dirFiles = fs.readdirSync(traitConfig.output_dir)
 
-function main (dirFiles: Array<string>) {
+function main(dirFiles: Array<string>) {
   if (!fs.existsSync(traitConfig.thumbnail_dir)) {
     fs.mkdirSync(traitConfig.thumbnail_dir)
   }
@@ -27,7 +32,7 @@ function main (dirFiles: Array<string>) {
   }
 }
 
-async function makeThumbnail (file: string) {
+async function makeThumbnail(file: string) {
   await sharp(traitConfig.output_dir + file)
     .resize(traitConfig.thumbnail)
     .toFile(traitConfig.thumbnail_dir + file)
