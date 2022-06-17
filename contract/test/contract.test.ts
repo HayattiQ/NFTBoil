@@ -65,7 +65,7 @@ describe(`${testConfig.contract_name} contract`, function () {
       await ad.setPresale(true)
       await expect(
         ad.connect(bob).publicMint(1, { value: degenCost })
-      ).to.revertedWith('Public mint is paused while Presale is active.')
+      ).to.revertedWith('Presale is active.')
     })
 
     it('Non-owner cannot mint without enough balance', async () => {
@@ -163,7 +163,7 @@ describe(`${testConfig.contract_name} contract`, function () {
         ad.connect(bob).publicMint(testConfig.max_mint + 1, {
           value: degenCost.mul(testConfig.max_mint + 1),
         })
-      ).to.revertedWith('Mint amount cannot exceed 10 per Tx.')
+      ).to.revertedWith('Mint amount over')
     })
 
     it('Bob fails to mints 2 with funds for 1', async () => {
@@ -171,7 +171,7 @@ describe(`${testConfig.contract_name} contract`, function () {
 
       await expect(
         ad.connect(bob).publicMint(2, { value: degenCost })
-      ).to.revertedWith('Not enough funds provided for mint')
+      ).to.revertedWith('Not enough funds')
 
       expect(await ad.totalSupply()).to.equal(0)
     })
@@ -182,7 +182,7 @@ describe(`${testConfig.contract_name} contract`, function () {
       await assertPublicMintSuccess(ad, cost.add(1), bob, 1, 1)
       await expect(
         ad.connect(bob).publicMint(1, { value: cost.sub(1) })
-      ).to.revertedWith('Not enough funds provided for mint')
+      ).to.revertedWith('Not enough funds')
 
       expect(await ad.totalSupply()).to.equal(2)
     })
@@ -194,7 +194,7 @@ describe(`${testConfig.contract_name} contract`, function () {
       await assertPublicMintSuccess(ad, cost.add(1), bob, 1, 1)
       await expect(
         ad.connect(bob).publicMint(1, { value: cost.sub(1) })
-      ).to.revertedWith('Not enough funds provided for mint')
+      ).to.revertedWith('Not enough funds')
 
       expect(await ad.totalSupply()).to.equal(2)
     })
@@ -218,7 +218,7 @@ describe(`${testConfig.contract_name} contract`, function () {
         ad.connect(bob).publicMint(testConfig.max_mint, {
           value: cost.mul(testConfig.max_mint).sub(1),
         })
-      ).to.revertedWith('Not enough funds provided for mint')
+      ).to.revertedWith('Not enough funds')
 
       expect(await ad.totalSupply()).to.equal(11)
     })
@@ -227,7 +227,7 @@ describe(`${testConfig.contract_name} contract`, function () {
       const cost = ethers.utils.parseUnits(testConfig.price_pre.toString())
       await expect(
         ad.connect(bob).publicMint(1, { value: cost.sub(1) })
-      ).to.revertedWith('Not enough funds provided for mint')
+      ).to.revertedWith('Not enough funds')
     })
 
     it('Public sale have no wallet restriction (only TX)', async () => {
@@ -340,7 +340,7 @@ describe(`${testConfig.contract_name} contract`, function () {
       await assertPreMint(ad, mintCost, alis, hexProofs[2], 5)
       await expect(
         ad.connect(alis).preMint(1, hexProofs[2], { value: mintCost })
-      ).to.be.revertedWith('Address already claimed max amount')
+      ).to.be.revertedWith('Already claimed max')
     })
 
     it('Whitelisted user can buy 3 + 2', async function () {
@@ -349,7 +349,7 @@ describe(`${testConfig.contract_name} contract`, function () {
       await assertPreMint(ad, mintCost, alis, hexProofs[2], 2, 3)
       await expect(
         ad.connect(alis).preMint(1, hexProofs[2], { value: mintCost })
-      ).to.be.revertedWith('Address already claimed max amount')
+      ).to.be.revertedWith('Already claimed max')
     })
 
     it('Whitelisted user can not buy over WL', async function () {
@@ -357,7 +357,7 @@ describe(`${testConfig.contract_name} contract`, function () {
       const cost = (await ad.getCurrentCost()).mul(amount)
       await expect(
         ad.connect(alis).preMint(amount, hexProofs[2], { value: cost })
-      ).to.be.revertedWith('Address already claimed max amount')
+      ).to.be.revertedWith('Already claimed max')
     })
 
     it('Non WhiteList user block after Whitelisted user buy', async function () {
@@ -366,7 +366,7 @@ describe(`${testConfig.contract_name} contract`, function () {
       await assertPreMint(ad, mintCost, alis, hexProofs[2], amount)
       await expect(
         ad.connect(alis).preMint(1, hexProofs[2], { value: mintCost })
-      ).to.be.revertedWith('Address already claimed max amount')
+      ).to.be.revertedWith('Already claimed max')
       await expect(
         ad.connect(bob).preMint(1, hexProofs[1], { value: mintCost })
       ).to.be.revertedWith('Invalid Merkle Proof')
@@ -378,7 +378,7 @@ describe(`${testConfig.contract_name} contract`, function () {
       await assertPreMint(ad, cost.add(1), alis, hexProofs[2], 1, 1)
       await expect(
         ad.connect(alis).preMint(1, hexProofs[2], { value: cost.sub(1) })
-      ).to.revertedWith('Not enough funds provided for mint')
+      ).to.revertedWith('Not enough funds')
 
       expect(await ad.totalSupply()).to.equal(2)
     })
@@ -390,7 +390,7 @@ describe(`${testConfig.contract_name} contract`, function () {
       await assertPreMint(ad, cost.add(1), alis, hexProofs[2], 1, 1)
       await expect(
         ad.connect(alis).preMint(1, hexProofs[2], { value: cost.sub(1) })
-      ).to.revertedWith('Not enough funds provided for mint')
+      ).to.revertedWith('Not enough funds')
 
       expect(await ad.totalSupply()).to.equal(2)
     })
@@ -410,7 +410,7 @@ describe(`${testConfig.contract_name} contract`, function () {
       expect(await ad.balanceOf(alis.address)).to.equal(4)
       await expect(
         ad.connect(alis).preMint(1, hexProofs[2], { value: mintCost })
-      ).to.be.revertedWith('Address already claimed max amount')
+      ).to.be.revertedWith('Already claimed max')
     })
   })
 })
