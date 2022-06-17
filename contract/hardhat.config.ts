@@ -1,72 +1,73 @@
-import "dotenv/config";
-import "@nomiclabs/hardhat-waffle";
-import type { HardhatUserConfig } from "hardhat/config";
-require("./scripts/tasks");
-import { getEnvVariable } from "./scripts/helpers";
-import "@typechain/hardhat";
-import "@nomiclabs/hardhat-etherscan";
-import "hardhat-gas-reporter"
+/* eslint-disable dot-notation */
+import 'dotenv/config'
+import '@nomiclabs/hardhat-waffle'
+import type { HardhatUserConfig } from 'hardhat/config'
+import { getEnvVariable } from './scripts/helpers'
+import '@typechain/hardhat'
+import '@nomiclabs/hardhat-etherscan'
+import 'hardhat-gas-reporter'
+require('./scripts/tasks')
 
 const config: HardhatUserConfig = {
-  defaultNetwork: "localhost",
+  defaultNetwork: 'localhost',
   solidity: {
-    version: "0.8.9",
+    version: '0.8.9',
     settings: {
-       optimizer: {
-         enabled: true,
-         runs: 200,
-     }
+      optimizer: {
+        enabled: true,
+        runs: 200
+      }
     }
-   },
+  },
   etherscan: {
     // Your API key for Etherscan
     // Obtain one at https://etherscan.io/
     apiKey: {
-      bsc: process.env["BSCSCAN_API"]!,
-      bscTestnet:process.env["BSCSCAN_API"]!,
-      polygon:process.env["POLYGON_API"]!,
-      polygonMumbai: process.env["POLYGON_API"]!,
-      mainnet:process.env["ETH_API"]!,
-      rinkeby: process.env["ETH_API"]!
+      bsc: process.env['BSCSCAN_API'] || '',
+      bscTestnet: process.env['BSCSCAN_API'] || '',
+      polygon: process.env['POLYGON_API'] || '',
+      polygonMumbai: process.env['POLYGON_API'] || '',
+      mainnet: process.env['ETH_API'] || '',
+      rinkeby: process.env['ETH_API'] || ''
     }
   },
   gasReporter: {
-    enabled: (process.env["REPORT_GAS"]) ? true : false
+    enabled: !!(process.env['REPORT_GAS'])
   },
   networks: {
     localhost: {
-      url: "http://localhost:8545",
+      url: 'http://localhost:8545',
       chainId: 31337,
       accounts: {
-        mnemonic: "test test test test test test test test test test test junk",
-      },
+        mnemonic: 'test test test test test test test test test test test junk'
+      }
     },
     kovan: {
-      url: "https://kovan.optimism.io/",
+      url: 'https://kovan.optimism.io/',
       chainId: 69,
-      accounts: [getEnvVariable("ACCOUNT_PRIVATE_KEY")],
+      accounts: [getEnvVariable('ACCOUNT_PRIVATE_KEY')]
     },
     ethereum: {
-      url: getEnvVariable("MAINNET_RPC"),
+      url: process.env['MAINNET_RPC'] || '',
       chainId: 1,
-      accounts: [getEnvVariable("ACCOUNT_PRIVATE_KEY")],
+      accounts: [getEnvVariable('ACCOUNT_PRIVATE_KEY')]
     },
     rinkeby: {
-      url: getEnvVariable("RINKEBY_RPC"),
+      url: process.env['RINKEBY_RPC'] || '',
       chainId: 4,
-      accounts: [getEnvVariable("ACCOUNT_PRIVATE_KEY")],
+      accounts: [getEnvVariable('ACCOUNT_PRIVATE_KEY')]
     },
     astar: {
-      url: "https://rpc.astar.network:8545",
+      url: 'https://rpc.astar.network:8545',
       chainId: 592,
-      accounts: [getEnvVariable("ACCOUNT_PRIVATE_KEY")],
+      accounts: [getEnvVariable('ACCOUNT_PRIVATE_KEY')]
     },
     shibuya: {
-      url: "https://rpc.shibuya.astar.network:8545",
+      url: 'https://rpc.shibuya.astar.network:8545',
       chainId: 81,
-      accounts: [getEnvVariable("ACCOUNT_PRIVATE_KEY")],
-    },
-  },
-};
+      accounts: [getEnvVariable('ACCOUNT_PRIVATE_KEY')]
+    }
+  }
+}
 
-export default config;
+export default config
