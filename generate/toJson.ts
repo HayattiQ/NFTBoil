@@ -1,16 +1,15 @@
-/* eslint-disable dot-notation */
 import { parse } from 'csv-parse/sync'
 import fs = require('fs');
 import * as config from './config.json'
-import { OptionValues, program } from 'commander'
+import { program } from 'commander'
 
 program.option('-p, --pack')
 program.option('-i, --indent', 'output json add indent')
 program.parse()
 
-type CSVRecords = {
-  [key: string]: string;
-}[];
+interface CSVRecord {
+   [x: string]: string; name?: any; description?: any; external_url?: any; image?: any; background_color?: any;
+}
 
 interface JsonOptionValues {
   pack: string;
@@ -32,7 +31,7 @@ type OpenSeaMetaData = {
 const options:JsonOptionValues = program.opts()
 const indentNumber = options.indent ? 2 : undefined
 
-const isRecords = (records: any): records is CSVRecords => {
+const isRecords = (records: any): records is CSVRecord[] => {
   if (!records) {
     return false
   } else if (!Array.isArray(records)) {
@@ -47,7 +46,7 @@ const isRecords = (records: any): records is CSVRecords => {
   return true
 }
 
-function main (options: OptionValues) {
+function main (options: JsonOptionValues) {
   const data = fs.readFileSync(config.csv_file_name)
   const records: any = parse(data, {
     columns: true
@@ -60,9 +59,9 @@ function main (options: OptionValues) {
   if (!fs.existsSync(config.json_dir)) {
     fs.mkdirSync(config.json_dir)
   }
-  if (options['pack']) {
+  if (options.pack) {
     const metadata = JSON.stringify(
-      records.map((rec) => convertMetaData(rec)),
+      records.map((rec:CSVRecord) => convertMetaData(rec)),
       null,
       indentNumber
     )
@@ -74,19 +73,20 @@ function main (options: OptionValues) {
         null,
         indentNumber
       )
+      // eslint-disable-next-line dot-notation
       fs.writeFileSync(config.json_dir + rec['id'] + '.json', metadata)
     }
   }
 }
 
-function convertMetaData (rec: { [key: string]: string }): OpenSeaMetaData {
-  if (!rec['name'] || !rec['description']) { throw new Error('name or description is null') }
+function convertMetaData (rec:CSVRecord): OpenSeaMetaData {
+  if (!rec.name || !rec.description) { throw new Error('name or description is null') }
   const metadata: OpenSeaMetaData = {
-    name: rec['name'],
-    description: rec['description'],
-    external_url: rec['external_url'],
-    image: rec['image'],
-    background_color: rec['background_color'],
+    name: rec.name,
+    description: rec.description,
+    external_url: rec.external_url,
+    image: rec.image,
+    background_color: rec.background_color,
     attributes: []
   }
 
