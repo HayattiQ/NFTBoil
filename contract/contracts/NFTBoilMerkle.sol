@@ -14,8 +14,8 @@ contract NFTBoilMerkle is ERC721Enumerable, Ownable, Pausable {
     uint256 public preCost = 0.01 ether;
     uint256 public publicCost = 0.02 ether;
 
-    bool public revealed = false;
-    bool public presale = true;
+    bool public revealed;
+    bool public presale;
     string public notRevealedUri;
 
     uint256 constant public MAX_SUPPLY = 5000;
@@ -30,6 +30,8 @@ contract NFTBoilMerkle is ERC721Enumerable, Ownable, Pausable {
         string memory _name,
         string memory _symbol
     ) ERC721(_name, _symbol) {
+        revealed = false;
+        presale = true;
     }
 
     // internal
@@ -42,10 +44,10 @@ contract NFTBoilMerkle is ERC721Enumerable, Ownable, Pausable {
         uint256 supply = totalSupply();
         uint256 cost = publicCost * _mintAmount;
         mintCheck(_mintAmount, supply, cost);
-        require(!presale, "Public mint is paused while Presale is active.");
+        require(!presale, "Presale is active.");
         require(
             _mintAmount <= PUBLIC_MAX_PER_TX,
-            "Mint amount cannot exceed 10 per Tx."
+            "Mint amount over"
         );
 
         for (uint256 i = 1; i <= _mintAmount; i++) {
@@ -70,7 +72,7 @@ contract NFTBoilMerkle is ERC721Enumerable, Ownable, Pausable {
 
         require(
             whiteListClaimed[msg.sender] + _mintAmount <= PRESALE_MAX_PER_WALLET,
-            "Address already claimed max amount"
+            "Already claimed max"
         );
 
         for (uint256 i = 1; i <= _mintAmount; i++) {
@@ -87,9 +89,9 @@ contract NFTBoilMerkle is ERC721Enumerable, Ownable, Pausable {
         require(_mintAmount > 0, "Mint amount cannot be zero");
         require(
             supply + _mintAmount <= MAX_SUPPLY,
-            "Total supply cannot exceed maxSupply"
+            "MAXSUPPLY over"
         );
-        require(msg.value >= cost, "Not enough funds provided for mint");
+        require(msg.value >= cost, "Not enough funds");
     }
 
     function ownerMint(address _address, uint256 count) public onlyOwner {
@@ -110,7 +112,7 @@ contract NFTBoilMerkle is ERC721Enumerable, Ownable, Pausable {
     {
         require(
             _exists(tokenId),
-            "ERC721Metadata: URI query for nonexistent token"
+            "URI query for nonexistent token"
         );
 
         if (revealed == false) {

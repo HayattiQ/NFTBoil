@@ -1,6 +1,8 @@
 {
-  "extends": "solhint:default",
+  "extends": "solhint:recommended",
   "rules": {
+    "compiler-version": ["error", ">=0.8.9"],
+    "func-visibility": ["warn", { "ignoreConstructors": true }],
     "avoid-suicide": "error",
     "avoid-sha3": "warn",
     "max-line-length": ["warn", 300]
