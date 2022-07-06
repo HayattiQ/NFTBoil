@@ -166,6 +166,19 @@ describe(`${testConfig.contract_name} contract`, function () {
       ).to.revertedWith('Mint amount over')
     })
 
+    it('Bob fails to mints when paused', async () => {
+      const degenCost = await ad.getCurrentCost()
+      await ad.pause()
+
+      await expect(
+        ad.connect(bob).publicMint(testConfig.max_mint + 1, {
+          value: degenCost.mul(testConfig.max_mint + 1),
+        })
+      ).to.revertedWith('Pausable: paused')
+      await ad.unpause()
+      await assertPublicMintSuccess(ad, degenCost, bob, 1)
+    })
+
     it('Bob fails to mints 2 with funds for 1', async () => {
       const degenCost = await ad.getCurrentCost()
 
@@ -358,6 +371,19 @@ describe(`${testConfig.contract_name} contract`, function () {
       await expect(
         ad.connect(alis).preMint(amount, hexProofs[2], { value: cost })
       ).to.be.revertedWith('Already claimed max')
+    })
+
+    it('Whitelisted fails to mints when paused', async () => {
+      const cost = await ad.getCurrentCost()
+      await ad.pause()
+
+      await expect(
+        ad.connect(alis).preMint(1, hexProofs[2], {
+          value: cost,
+        })
+      ).to.revertedWith('Pausable: paused')
+      await ad.unpause()
+      await assertPreMint(ad, cost, alis, hexProofs[2], 1)
     })
 
     it('Non WhiteList user block after Whitelisted user buy', async function () {

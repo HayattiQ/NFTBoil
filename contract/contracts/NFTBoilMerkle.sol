@@ -6,8 +6,10 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Pausable.sol";
+import "@openzeppelin/contracts/token/common/ERC2981.sol";
 
-contract NFTBoilMerkle is ERC721Enumerable, Ownable, Pausable {
+
+contract NFTBoilMerkle is ERC721Enumerable, ERC2981, Ownable, Pausable {
     using Strings for uint256;
 
     string public baseURI = "";
@@ -17,6 +19,10 @@ contract NFTBoilMerkle is ERC721Enumerable, Ownable, Pausable {
     bool public revealed;
     bool public presale;
     string public notRevealedUri;
+
+    address public royaltyAddress;
+    uint96 public royaltyFee = 500;
+
 
     uint256 constant public MAX_SUPPLY = 5000;
     uint256 constant public PUBLIC_MAX_PER_TX = 10;
@@ -32,6 +38,7 @@ contract NFTBoilMerkle is ERC721Enumerable, Ownable, Pausable {
     ) ERC721(_name, _symbol) {
         revealed = false;
         presale = true;
+        _setDefaultRoyalty(msg.sender, royaltyFee);
     }
 
     // internal
@@ -40,7 +47,7 @@ contract NFTBoilMerkle is ERC721Enumerable, Ownable, Pausable {
     }
 
     // public mint
-    function publicMint(uint256 _mintAmount) public payable {
+    function publicMint(uint256 _mintAmount) public payable whenNotPaused {
         uint256 supply = totalSupply();
         uint256 cost = publicCost * _mintAmount;
         mintCheck(_mintAmount, supply, cost);
@@ -58,6 +65,7 @@ contract NFTBoilMerkle is ERC721Enumerable, Ownable, Pausable {
     function preMint(uint256 _mintAmount, bytes32[] calldata _merkleProof)
         public
         payable
+        whenNotPaused
     {
         uint256 supply = totalSupply();
         uint256 cost = preCost * _mintAmount;
@@ -181,6 +189,31 @@ contract NFTBoilMerkle is ERC721Enumerable, Ownable, Pausable {
      */
     function setMerkleRoot(bytes32 _merkleRoot) external onlyOwner {
         merkleRoot = _merkleRoot;
+    }
+
+    /**
+     * @notice Change the royalty fee for the collection
+     */
+    function setRoyaltyFee(uint96 _feeNumerator) external onlyOwner {
+        royaltyFee = _feeNumerator;
+        _setDefaultRoyalty(royaltyAddress, royaltyFee);
+    }
+
+    /**
+     * @notice Change the royalty address where royalty payouts are sent
+     */
+    function setRoyaltyAddress(address _royaltyAddress) external onlyOwner {
+        royaltyAddress = _royaltyAddress;
+        _setDefaultRoyalty(royaltyAddress, royaltyFee);
+    }
+
+  function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(ERC721Enumerable, ERC2981)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
     }
 
 
