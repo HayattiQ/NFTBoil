@@ -76,7 +76,18 @@ function main(records: any) {
   const traits = toTraitData(records)
   const num = traits.length
   for (const trait of traits) {
+    traitConfigCheck(trait)
     compositeImage(trait, String(num).length)
+  }
+}
+
+function traitConfigCheck(trait: TraitData) {
+  const attributeKeys = Object.keys(trait.attributes)
+  const traitConfigKeys = traitConfig.traits.map((e) => e.name)
+  for (const keys of traitConfigKeys) {
+    if (!attributeKeys.find((e) => e === keys)) {
+      throw new Error('Error. not found trait attributes in config. ' + keys)
+    }
   }
 }
 
