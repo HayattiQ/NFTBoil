@@ -4,69 +4,32 @@
   "json_dir": "json/",
   "thumbnail_dir": "thumbnail/",
   "csv_file_name": "metadata.csv",
-  "max_image_generate": 5000,
+  "max_image_generate": 10000,
   "thumbnail": {
-    "width": 300,
-    "height": 300
+    "width": 600,
+    "height": 600
   },
   "traits": [
-    {
-      "name": "background",
-      "order": 1
-    },
-    {
-      "name": "back",
-      "order": 2
-    },
-    {
-      "name": "water back",
-      "order": 3
-    },
-    {
-      "name": "hair back",
-      "order": 4
-    },
-    {
-      "name": "face",
-      "order": 5
-    },
-    {
-      "name": "mouth",
-      "order": 6
-    },
-    {
-      "name": "eyes",
-      "order": 7
-    },
-    {
-      "name": "clothes",
-      "order": 8
-    },
-    {
-      "name": "hair",
-      "order": 9
-    },
-
-    {
-      "name": "mask",
-      "order": 10
-    },
-    {
-      "name": "glasses",
-      "order": 11
-    },
-    {
-      "name": "water",
-      "order": 11
-    },
-    {
-      "name": "water top",
-      "order": 12
-    },
-
-    {
-      "name": "hands",
-      "order": 13
-    }
+    { "name": "background", "order": 1 },
+    { "name": "special3", "order": 2 },
+    { "name": "back", "order": 3 },
+    { "name": "water back", "order": 4, "json": false },
+    { "name": "hair back", "order": 5, "json": false },
+    { "name": "ears back", "order": 6, "json": false },
+    { "name": "face", "order": 7 },
+    { "name": "special1", "order": 8 },
+    { "name": "mouth", "order": 9 },
+    { "name": "clothes", "order": 10 },
+    { "name": "hair middle", "order": 11, "json": false },
+    { "name": "eyes", "order": 12 },
+    { "name": "hair", "order": 13 },
+    { "name": "ears", "order": 14 },
+    { "name": "glasses", "order": 15 },
+    { "name": "mask", "order": 16},
+    { "name": "forehead", "order": 17 },
+    { "name": "water", "order": 18 },
+    { "name": "water top", "order": 19, "json": false },
+    { "name": "hands", "order": 20 },
+    { "name": "special2", "order": 21 }
   ]
 }

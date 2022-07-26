@@ -94,10 +94,12 @@ function convertMetaData(rec: CSVRecord): OpenSeaMetaData {
   }
 
   for (const att of config.traits) {
-    metadata.attributes.push({
-      trait_type: att.name.charAt(0).toUpperCase() + att.name.slice(1),
-      value: rec[att.name]!,
-    })
+    if (att.json !== false) {
+      metadata.attributes.push({
+        trait_type: att.name.charAt(0).toUpperCase() + att.name.slice(1),
+        value: rec[att.name]!,
+      })
+    }
   }
 
   return metadata
