@@ -3,41 +3,39 @@ pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
-import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Pausable.sol";
 import "@openzeppelin/contracts/token/common/ERC2981.sol";
-import "./ERC721A/ERC721A.sol";
+import "erc721a/contracts/ERC721A.sol";
 
-contract NFTBoilMerkleA is ERC721A, ERC2981, Ownable, Pausable {
+contract NFTBoilMerkleA is ERC721A, ERC2981 , Ownable, Pausable {
     using Strings for uint256;
 
-    string private baseURI = "";
+    string public baseURI = "";
     uint256 public preCost = 0.01 ether;
     uint256 public publicCost = 0.02 ether;
 
-    bool public revealed;
-    bool public presale;
-    string public notRevealedUri;
-
+    bool public presale = true;
     address public royaltyAddress;
     uint96 public royaltyFee = 500;
 
-
     uint256 constant public MAX_SUPPLY = 5000;
     uint256 constant public PUBLIC_MAX_PER_TX = 10;
-    uint256 constant public PRESALE_MAX_PER_WALLET = 5;
-    string constant public BASE_EXTENSION = ".json";
-    bytes32 public merkleRoot;
 
-    mapping(address => uint256) private whiteListClaimed;
+    mapping(address => uint256) public whiteLists;
+
 
     constructor(
         string memory _name,
         string memory _symbol
     ) ERC721A(_name, _symbol) {
-        revealed = false;
-        presale = true;
+        royaltyAddress = msg.sender;
         _setDefaultRoyalty(msg.sender, royaltyFee);
+        /*
+        こちらは、運営mintを非常に安くする関数です。事前に運営mintをしたいときに使ってください。
+        _mintERC2309(bulkTransferAddress, 1155);
+        for (uint256 i; i < 231; ++i) {
+            _initializeOwnershipAt(i * 5);
+        }*/
     }
 
     // internal
@@ -47,9 +45,8 @@ contract NFTBoilMerkleA is ERC721A, ERC2981, Ownable, Pausable {
 
     // public mint
     function publicMint(uint256 _mintAmount) public payable whenNotPaused {
-        uint256 supply = totalSupply();
         uint256 cost = publicCost * _mintAmount;
-        mintCheck(_mintAmount, supply, cost);
+        mintCheck(_mintAmount, cost);
         require(!presale, "Presale is active.");
         require(
             _mintAmount <= PUBLIC_MAX_PER_TX,
@@ -59,51 +56,37 @@ contract NFTBoilMerkleA is ERC721A, ERC2981, Ownable, Pausable {
         _safeMint(msg.sender, _mintAmount);
     }
 
-    function preMint(uint256 _mintAmount, bytes32[] calldata _merkleProof)
+    function preMint(uint256 _mintAmount)
         public
         payable
         whenNotPaused
     {
-        uint256 supply = totalSupply();
         uint256 cost = preCost * _mintAmount;
-        mintCheck(_mintAmount, supply, cost);
+        mintCheck(_mintAmount,  cost);
         require(presale, "Presale is not active.");
-
-        bytes32 leaf = keccak256(abi.encodePacked(msg.sender));
         require(
-            MerkleProof.verify(_merkleProof, merkleRoot, leaf),
-            "Invalid Merkle Proof"
+            whiteLists[msg.sender] >= _mintAmount,
+            "You don't have WhiteList"
         );
 
-        require(
-            whiteListClaimed[msg.sender] + _mintAmount <= PRESALE_MAX_PER_WALLET,
-            "Already claimed max"
-        );
-
+        whiteLists[msg.sender] -= _mintAmount;
         _safeMint(msg.sender, _mintAmount);
-        whiteListClaimed[msg.sender] += _mintAmount;
     }
 
     function mintCheck(
         uint256 _mintAmount,
-        uint256 supply,
         uint256 cost
     ) private view {
         require(_mintAmount > 0, "Mint amount cannot be zero");
         require(
-            supply + _mintAmount <= MAX_SUPPLY,
+            totalSupply() + _mintAmount <= MAX_SUPPLY,
             "MAXSUPPLY over"
         );
         require(msg.value >= cost, "Not enough funds");
     }
 
     function ownerMint(address _address, uint256 count) public onlyOwner {
-        uint256 supply = totalSupply();
-
-        for (uint256 i = 1; i <= count; i++) {
-            _safeMint(msg.sender, supply + i);
-            safeTransferFrom(msg.sender, _address, supply + i);
-        }
+       _safeMint(_address, count);
     }
 
     function setPresale(bool _state) public onlyOwner {
@@ -142,11 +125,10 @@ contract NFTBoilMerkleA is ERC721A, ERC2981, Ownable, Pausable {
         Address.sendValue(payable(owner()), address(this).balance);
     }
 
-    /**
-     * @notice Set the merkle root for the allow list mint
-     */
-    function setMerkleRoot(bytes32 _merkleRoot) external onlyOwner {
-        merkleRoot = _merkleRoot;
+    function pushMultiWL(address[] memory list, uint256[] memory maxMint) public virtual onlyOwner {
+        for (uint256 i = 0; i < list.length; i++) {
+            whiteLists[list[i]] = maxMint[i];
+        }
     }
 
     /**
@@ -165,13 +147,17 @@ contract NFTBoilMerkleA is ERC721A, ERC2981, Ownable, Pausable {
         _setDefaultRoyalty(royaltyAddress, royaltyFee);
     }
 
-  function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        override(ERC721A, ERC2981)
-        returns (bool)
-    {
-        return super.supportsInterface(interfaceId);
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view virtual override(ERC721A, ERC2981) returns (bool) {
+        // Supports the following `interfaceId`s:
+        // - IERC165: 0x01ffc9a7
+        // - IERC721: 0x80ac58cd
+        // - IERC721Metadata: 0x5b5e139f
+        // - IERC2981: 0x2a55205a
+        return
+            ERC721A.supportsInterface(interfaceId) ||
+            ERC2981.supportsInterface(interfaceId);
     }
 
 

@@ -31,7 +31,6 @@ describe(`${testConfig.contract_name} contract`, function () {
 
     // Ensure contract is paused/disabled on deployment
     expect(await ad.presale()).to.equal(true)
-    expect(await ad.revealed()).to.equal(false)
   })
 
   describe('Basic checks', function () {

@@ -23,7 +23,6 @@ describe('Contract OwnerFunction test', function () {
 
     // Ensure contract is paused/disabled on deployment
     expect(await ad.presale()).to.equal(true)
-    expect(await ad.revealed()).to.equal(false)
   })
 
   describe('OwnerFunction checks', function () {

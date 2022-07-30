@@ -6,7 +6,7 @@ const { expect } = require('chai')
 export const testConfig = {
   price: 0.02,
   price_pre: 0.01,
-  contract_name: 'NFTBoilMerkle',
+  contract_name: 'NFTBoilMerkleA',
   max_supply: 5000,
   max_mint: 10,
   presale_max_mint: 5,
