@@ -55,6 +55,7 @@ function main(options: JsonOptionValues) {
   const data = fs.readFileSync(config.csv_file_name)
   const records: any = parse(data, {
     columns: true,
+    bom: true,
   })
 
   if (!isRecords(records)) {
