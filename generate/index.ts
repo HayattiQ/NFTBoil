@@ -49,7 +49,7 @@ function traitMatch(rec: { [key: string]: string }) {
   }
 
   for (const [key, value] of Object.entries(rec)) {
-    if (traitConfig.traits.find((v) => v.name === key)) {
+    if (traitConfig.traits.filter((v) => v.image !== false).find((v) => v.name === key)) {
       trait.attributes[key] = value
     }
   }
@@ -83,7 +83,7 @@ function main(records: any) {
 
 function traitConfigCheck(trait: TraitData) {
   const attributeKeys = Object.keys(trait.attributes)
-  const traitConfigKeys = traitConfig.traits.map((e) => e.name)
+  const traitConfigKeys = traitConfig.traits.filter((v) => v.image !== false).map((e) => e.name)
   for (const keys of traitConfigKeys) {
     if (!attributeKeys.find((e) => e === keys)) {
       throw new Error('Error. not found trait attributes in config. ' + keys)
