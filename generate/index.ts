@@ -49,7 +49,11 @@ function traitMatch(rec: { [key: string]: string }) {
   }
 
   for (const [key, value] of Object.entries(rec)) {
-    if (traitConfig.traits.filter((v) => v.image !== false).find((v) => v.name === key)) {
+    if (
+      traitConfig.traits
+        .filter((v) => v.image !== false)
+        .find((v) => v.name === key)
+    ) {
       trait.attributes[key] = value
     }
   }
@@ -83,7 +87,9 @@ function main(records: any) {
 
 function traitConfigCheck(trait: TraitData) {
   const attributeKeys = Object.keys(trait.attributes)
-  const traitConfigKeys = traitConfig.traits.filter((v) => v.image !== false).map((e) => e.name)
+  const traitConfigKeys = traitConfig.traits
+    .filter((v) => v.image !== false)
+    .map((e) => e.name)
   for (const keys of traitConfigKeys) {
     if (!attributeKeys.find((e) => e === keys)) {
       throw new Error('Error. not found trait attributes in config. ' + keys)
@@ -96,7 +102,7 @@ async function compositeImage(trait: TraitData, zeroPaddingLength: number) {
     .map(([key, value]) => ({ key, value }))
     .sort(fnSort)
   const firstTrait = attributes.shift()
-  const restTrait: any[] = []
+  const restTrait: sharp.OverlayOptions[] = []
   if (firstTrait === undefined) throw new Error('First Trait is undefined')
 
   const id: number = parseInt(trait.id)
@@ -109,7 +115,14 @@ async function compositeImage(trait: TraitData, zeroPaddingLength: number) {
       const traitPath =
         traitConfig.assset_dir + atr.key + '/' + atr.value + '.png'
       if (!fs.existsSync(traitPath)) console.log(traitPath + ' is not exsit')
-      restTrait.push({ input: traitPath })
+      const traitBlend: string =
+        traitConfig.traits.find((v) => v.name === atr.key)?.blend || 'over'
+      const traitBlendChecked: sharp.Blend = isBlend(traitBlend)
+        ? traitBlend
+        : (() => {
+            throw new Error(traitBlend + ' is not Blend')
+          })()
+      restTrait.push({ input: traitPath, blend: traitBlendChecked })
     }
   }
   try {
@@ -150,4 +163,41 @@ function fnSort(
 
 function zeroPadding(num: string, len: number) {
   return (Array(len).join('0') + num).slice(-len)
+}
+
+function isBlend(name: unknown): name is sharp.Blend {
+  const data = [
+    'clear',
+    'source',
+    'over',
+    'in',
+    'out',
+    'atop',
+    'dest',
+    'dest-over',
+    'dest-in',
+    'dest-out',
+    'dest-atop',
+    'xor',
+    'add',
+    'saturate',
+    'multiply',
+    'screen',
+    'overlay',
+    'darken',
+    'lighten',
+    'colour-dodge',
+    'colour-dodge',
+    'colour-burn',
+    'colour-burn',
+    'hard-light',
+    'soft-light',
+    'difference',
+    'exclusion',
+  ]
+  if (data.find((v) => v === name)) {
+    return true
+  } else {
+    return false
+  }
 }

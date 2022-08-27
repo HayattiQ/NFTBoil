@@ -10,7 +10,7 @@
     "height": 600
   },
   "traits": [
-    { "name": "background", "order": 1 },
+    { "name": "background", "order": 1, "blend": "over" },
     { "name": "special3", "order": 2 },
     { "name": "back", "order": 3, "image": true },
     { "name": "water back", "order": 4, "json": false, "image": true },
