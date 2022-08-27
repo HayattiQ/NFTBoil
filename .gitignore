@@ -100,3 +100,10 @@ generate/thumbnail/
 generate/assets/
 # Local Netlify folder
 .netlify
+
+# MAC
+.DS_Store
+
+
+
+
