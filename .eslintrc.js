@@ -4,7 +4,7 @@ module.exports = {
     mocha: true,
     es2021: true,
   },
-  extends: ['standard', 'prettier'],
+  extends: ['standard', 'prettier', 'plugin:@typescript-eslint/recommended'],
   parser: '@typescript-eslint/parser',
   parserOptions: {
     ecmaVersion: 'latest',
@@ -14,4 +14,5 @@ module.exports = {
   ignorePatterns: ['frontend/src/**'],
   plugins: ['@typescript-eslint'],
   rules: {},
+  root: true,
 }
