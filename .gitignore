@@ -93,6 +93,7 @@ typings/
 
 .env
 .env.test
+!frontend/.env
 
 generate/output/
 generate/json/
