@@ -1,46 +1,59 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-/// @title: NFTBoil
-/// @author: HayattiQ
-/// @dev: This contract using NFTBoil (https://github.com/HayattiQ/NFTBoil)
-
-
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Pausable.sol";
 import "@openzeppelin/contracts/token/common/ERC2981.sol";
 import "erc721a/contracts/ERC721A.sol";
+import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
+
 
 contract NFTBoilMerkleA is ERC721A, ERC2981 , Ownable, Pausable {
     using Strings for uint256;
 
-    string public baseURI = "";
-    uint256 public preCost = 0.01 ether;
-    uint256 public publicCost = 0.02 ether;
+    string private baseURI = "";
 
+    uint256 public preCost = 0.025 ether;
+    uint256 public publicCost = 0.04 ether;
     bool public presale = true;
+    uint256 public presale_max = 5;
+    bool public mintable = true;
     address public royaltyAddress;
     uint96 public royaltyFee = 500;
 
-    uint256 constant public MAX_SUPPLY = 5000;
-    uint256 constant public PUBLIC_MAX_PER_TX = 10;
-
-    mapping(address => uint256) public whiteLists;
+    uint256 constant public MAX_SUPPLY = 2200;
+    string constant private BASE_EXTENSION = ".json";
+    uint256 constant private PUBLIC_MAX_PER_TX = 5;
+    address constant private BULK_TRANSFER_ADDRESS = 0x0000000000000000000000000000000000000000;
+    address constant private DEFAULT_ROYALITY_ADDRESS = 0x0000000000000000000000000000000000000000;
+    bytes32 public merkleRoot;
+    mapping(address => uint256) private whiteListClaimed;
 
 
     constructor(
         string memory _name,
         string memory _symbol
     ) ERC721A(_name, _symbol) {
-        royaltyAddress = msg.sender;
-        _setDefaultRoyalty(msg.sender, royaltyFee);
-        /*
-        こちらは、運営mintを非常に安くする関数です。事前に運営mintをしたいときに使ってください。
-        _mintERC2309(bulkTransferAddress, 1155);
-        for (uint256 i; i < 231; ++i) {
-            _initializeOwnershipAt(i * 5);
-        }*/
+        _setDefaultRoyalty(DEFAULT_ROYALITY_ADDRESS, royaltyFee);
+        _mintERC2309(BULK_TRANSFER_ADDRESS, 198);
+        for (uint256 i; i < 19; ++i) {
+            _initializeOwnershipAt(i * 10);
+        }
+    }
+
+
+    modifier whenMintable() {
+        require(mintable == true, "Mintable: paused");
+        _;
+    }
+
+    /**
+     * @dev The modifier allowing the function access only for real humans.
+     */
+    modifier callerIsUser() {
+        require(tx.origin == msg.sender, "The caller is another contract");
+        _;
     }
 
     // internal
@@ -48,8 +61,23 @@ contract NFTBoilMerkleA is ERC721A, ERC2981 , Ownable, Pausable {
         return baseURI;
     }
 
-    // public mint
-    function publicMint(uint256 _mintAmount) public payable whenNotPaused {
+    function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
+        return string(abi.encodePacked(ERC721A.tokenURI(tokenId), BASE_EXTENSION));
+    }
+
+    /**
+     * @notice Set the merkle root for the allow list mint
+     */
+    function setMerkleRoot(bytes32 _merkleRoot) external onlyOwner {
+        merkleRoot = _merkleRoot;
+    }
+
+    function publicMint(uint256 _mintAmount) public
+    payable
+    whenNotPaused
+    whenMintable
+    callerIsUser
+    {
         uint256 cost = publicCost * _mintAmount;
         mintCheck(_mintAmount, cost);
         require(!presale, "Presale is active.");
@@ -58,24 +86,31 @@ contract NFTBoilMerkleA is ERC721A, ERC2981 , Ownable, Pausable {
             "Mint amount over"
         );
 
-        _safeMint(msg.sender, _mintAmount);
+        _mint(msg.sender, _mintAmount);
     }
 
-    function preMint(uint256 _mintAmount)
+    function preMint(uint256 _mintAmount, bytes32[] calldata _merkleProof)
         public
         payable
+        whenMintable
         whenNotPaused
     {
         uint256 cost = preCost * _mintAmount;
         mintCheck(_mintAmount,  cost);
         require(presale, "Presale is not active.");
+        bytes32 leaf = keccak256(abi.encodePacked(msg.sender));
         require(
-            whiteLists[msg.sender] >= _mintAmount,
-            "You don't have WhiteList"
+            MerkleProof.verify(_merkleProof, merkleRoot, leaf),
+            "Invalid Merkle Proof"
         );
 
-        whiteLists[msg.sender] -= _mintAmount;
-        _safeMint(msg.sender, _mintAmount);
+        require(
+            whiteListClaimed[msg.sender] + _mintAmount <= presale_max,
+            "Already claimed max"
+        );
+
+        _mint(msg.sender, _mintAmount);
+         whiteListClaimed[msg.sender] += _mintAmount;
     }
 
     function mintCheck(
@@ -91,7 +126,7 @@ contract NFTBoilMerkleA is ERC721A, ERC2981 , Ownable, Pausable {
     }
 
     function ownerMint(address _address, uint256 count) public onlyOwner {
-       _safeMint(_address, count);
+       _mint(_address, count);
     }
 
     function setPresale(bool _state) public onlyOwner {
@@ -106,10 +141,18 @@ contract NFTBoilMerkleA is ERC721A, ERC2981 , Ownable, Pausable {
         publicCost = _publicCost;
     }
 
+    function setMintable(bool _state) public onlyOwner {
+        mintable = _state;
+    }
+
+    function setPreMax(uint256 _max) public onlyOwner {
+        presale_max = _max;
+    }
+
     function getCurrentCost() public view returns (uint256) {
         if (presale) {
             return preCost;
-        } else {
+        } else{
             return publicCost;
         }
     }
@@ -128,12 +171,6 @@ contract NFTBoilMerkleA is ERC721A, ERC2981 , Ownable, Pausable {
 
     function withdraw() external onlyOwner {
         Address.sendValue(payable(owner()), address(this).balance);
-    }
-
-    function pushMultiWL(address[] memory list, uint256[] memory maxMint) public virtual onlyOwner {
-        for (uint256 i = 0; i < list.length; i++) {
-            whiteLists[list[i]] = maxMint[i];
-        }
     }
 
     /**
@@ -164,6 +201,5 @@ contract NFTBoilMerkleA is ERC721A, ERC2981 , Ownable, Pausable {
             ERC721A.supportsInterface(interfaceId) ||
             ERC2981.supportsInterface(interfaceId);
     }
-
 
 }
