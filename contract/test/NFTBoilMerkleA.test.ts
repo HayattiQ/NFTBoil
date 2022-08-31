@@ -1,33 +1,35 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable no-unused-expressions */
 import { ethers, waffle } from 'hardhat'
 import type { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
-import {
-  testConfig,
-  assertPublicMintSuccess,
-  assertPreMint,
-} from './test-helpers'
-import type { NFTBoilMerkle } from '../typechain-types'
-import type { BigNumber } from 'ethers'
-const { expect } = require('chai')
+import { testConfig } from './test-helpers'
+import type { NFTBoilMerkleA } from '../typechain-types'
+import type { BigNumber, BytesLike } from 'ethers'
+import { expect } from 'chai'
+import { MerkleTree } from 'merkletreejs'
+import keccak256 from 'keccak256'
 const provider = waffle.provider
-const { MerkleTree } = require('merkletreejs')
-const keccak256 = require('keccak256')
 
-describe(`${testConfig.contract_name} contract`, function () {
+describe(`NFTBoilMerkleA contract`, function () {
   let owner: SignerWithAddress
   let bob: SignerWithAddress
+  let bobs: NFTBoilMerkleA
   let alis: SignerWithAddress
-  let ad: NFTBoilMerkle
+  let ads: NFTBoilMerkleA
+  let ad: NFTBoilMerkleA
 
   beforeEach(async function () {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    ;[owner, bob, alis] = await ethers.getSigners()
-    const contract = await ethers.getContractFactory(testConfig.contract_name)
+    [owner, bob, alis] = await ethers.getSigners()
+    const contract = await ethers.getContractFactory('NFTBoilMerkleA')
     ad = (await contract.deploy(
-      testConfig.contract_name,
+      'NFTBoilMerkleA',
       testConfig.symbol
-    )) as NFTBoilMerkle
+    )) as NFTBoilMerkleA
     await ad.deployed()
+    bobs = ad.connect(bob)
+    ads = ad.connect(alis)
 
     // Ensure contract is paused/disabled on deployment
     expect(await ad.presale()).to.equal(true)
@@ -75,8 +77,8 @@ describe(`${testConfig.contract_name} contract`, function () {
 
     it('Owner and Bob mint', async () => {
       const degenCost = await ad.getCurrentCost()
+      expect(await ad.totalSupply()).to.equal(testConfig.initialSupply)
       let tokenId = await ad.totalSupply()
-      expect(await ad.totalSupply()).to.equal(0)
       expect(
         await ad.publicMint(1, {
           value: degenCost,
@@ -85,7 +87,7 @@ describe(`${testConfig.contract_name} contract`, function () {
         .to.emit(ad, 'Transfer')
         .withArgs(ethers.constants.AddressZero, owner.address, tokenId.add(1))
 
-      expect(await ad.totalSupply()).to.equal(1)
+      expect(await ad.totalSupply()).to.equal(testConfig.initialSupply + 1)
       tokenId = await ad.totalSupply()
       expect(
         await ad.connect(bob).publicMint(1, {
@@ -95,7 +97,7 @@ describe(`${testConfig.contract_name} contract`, function () {
         .to.emit(ad, 'Transfer')
         .withArgs(ethers.constants.AddressZero, bob.address, tokenId.add('1'))
 
-      expect(await ad.totalSupply()).to.equal(2)
+      expect(await ad.totalSupply()).to.equal(testConfig.initialSupply + 2)
     })
 
     it('Minting tokens increased contract balance', async () => {
@@ -125,7 +127,6 @@ describe(`${testConfig.contract_name} contract`, function () {
           bob.address,
           tokenId.add(testConfig.max_mint.toString())
         )
-      expect(await ad.totalSupply()).to.equal(testConfig.max_mint)
     })
 
     it('Bob mints 1 plus ' + (testConfig.max_mint - 1), async () => {
@@ -139,7 +140,6 @@ describe(`${testConfig.contract_name} contract`, function () {
       )
         .to.emit(ad, 'Transfer')
         .withArgs(ethers.constants.AddressZero, bob.address, tokenId.add('1'))
-      expect(await ad.totalSupply()).to.equal(1)
 
       expect(
         await ad.connect(bob).publicMint(testConfig.max_mint - 1, {
@@ -152,12 +152,10 @@ describe(`${testConfig.contract_name} contract`, function () {
           bob.address,
           tokenId.add((testConfig.max_mint - 1).toString())
         )
-      expect(await ad.totalSupply()).to.equal(testConfig.max_mint)
     })
 
     it('Bob fails to mints ' + (testConfig.max_mint + 1), async () => {
       const degenCost = await ad.getCurrentCost()
-
       await expect(
         ad.connect(bob).publicMint(testConfig.max_mint + 1, {
           value: degenCost.mul(testConfig.max_mint + 1),
@@ -166,16 +164,20 @@ describe(`${testConfig.contract_name} contract`, function () {
     })
 
     it('Bob fails to mints when paused', async () => {
-      const degenCost = await ad.getCurrentCost()
+      const cost = await ad.getCurrentCost()
       await ad.pause()
 
       await expect(
         ad.connect(bob).publicMint(testConfig.max_mint + 1, {
-          value: degenCost.mul(testConfig.max_mint + 1),
+          value: cost.mul(testConfig.max_mint + 1),
         })
       ).to.revertedWith('Pausable: paused')
       await ad.unpause()
-      await assertPublicMintSuccess(ad, degenCost, bob, 1)
+      expect(
+        await ad.connect(bob).publicMint(1, {
+          value: cost,
+        })
+      ).to.be.ok
     })
 
     it('Bob fails to mints 2 with funds for 1', async () => {
@@ -184,55 +186,44 @@ describe(`${testConfig.contract_name} contract`, function () {
       await expect(
         ad.connect(bob).publicMint(2, { value: degenCost })
       ).to.revertedWith('Not enough funds')
-
-      expect(await ad.totalSupply()).to.equal(0)
     })
 
     it('Public Sale Price Boundary Check', async () => {
       const cost = ethers.utils.parseUnits(testConfig.price.toString())
-      await assertPublicMintSuccess(ad, cost, bob, 1)
-      await assertPublicMintSuccess(ad, cost.add(1), bob, 1, 1)
-      await expect(
-        ad.connect(bob).publicMint(1, { value: cost.sub(1) })
-      ).to.revertedWith('Not enough funds')
-
-      expect(await ad.totalSupply()).to.equal(2)
+      expect(await bobs.publicMint(1, { value: cost })).to.be.ok
+      expect(await bobs.publicMint(1, { value: cost.add(1) })).to.be.ok
+      await expect(bobs.publicMint(1, { value: cost.sub(1) })).to.revertedWith(
+        'Not enough funds'
+      )
     })
 
     it('Public Sale Price Change Check', async () => {
       const cost = ethers.utils.parseUnits('0.001')
       expect(await ad.setPublicCost(cost))
-      await assertPublicMintSuccess(ad, cost, bob, 1)
-      await assertPublicMintSuccess(ad, cost.add(1), bob, 1, 1)
+      expect(await bobs.publicMint(1, { value: cost })).to.be.ok
+      expect(await bobs.publicMint(1, { value: cost.add(1) })).to.be.ok
       await expect(
         ad.connect(bob).publicMint(1, { value: cost.sub(1) })
       ).to.revertedWith('Not enough funds')
-
-      expect(await ad.totalSupply()).to.equal(2)
     })
 
     it(`${testConfig.max_mint} mint Public Sale Price Boundary Check`, async () => {
       const cost = ethers.utils.parseUnits(testConfig.price.toString())
-      await assertPublicMintSuccess(
-        ad,
-        cost.mul(testConfig.max_mint),
-        bob,
-        testConfig.max_mint
-      )
-      await assertPublicMintSuccess(
-        ad,
-        cost.mul(testConfig.max_mint).add(1),
-        bob,
-        1,
-        testConfig.max_mint
-      )
+      expect(
+        await bobs.publicMint(testConfig.max_mint, {
+          value: cost.mul(testConfig.max_mint),
+        })
+      ).to.be.ok
+      expect(
+        await bobs.publicMint(testConfig.max_mint, {
+          value: cost.mul(testConfig.max_mint).add(1),
+        })
+      ).to.be.ok
       await expect(
         ad.connect(bob).publicMint(testConfig.max_mint, {
           value: cost.mul(testConfig.max_mint).sub(1),
         })
       ).to.revertedWith('Not enough funds')
-
-      expect(await ad.totalSupply()).to.equal(11)
     })
 
     it('Pre Sale price can not buy', async () => {
@@ -244,59 +235,22 @@ describe(`${testConfig.contract_name} contract`, function () {
 
     it('Public sale have no wallet restriction (only TX)', async () => {
       const cost = await ad.getCurrentCost()
-      await assertPublicMintSuccess(
-        ad,
-        cost.mul(testConfig.max_mint),
-        bob,
-        testConfig.max_mint
-      )
-      await assertPublicMintSuccess(
-        ad,
-        cost.mul(testConfig.max_mint),
-        bob,
-        testConfig.max_mint,
-        testConfig.max_mint
-      )
-    })
-  })
-
-  describe('URI checks', function () {
-    beforeEach(async function () {
-      await ad.setPresale(false)
-    })
-
-    it('Token URI not available for non-minted token', async function () {
-      await expect(ad.tokenURI(1)).to.be.reverted
-    })
-
-    it('URI not visible before reveal', async function () {
-      const degenCost = await ad.getCurrentCost()
-      await ad.setNotRevealedURI('ipfs://test/')
-      expect(await ad.publicMint(1, { value: degenCost })).to.be.ok
-      expect(await ad.tokenURI(1)).to.equal('ipfs://test/')
-    })
-
-    it('URI visible after reveal', async function () {
-      await ad.setNotRevealedURI('ipfs://test/')
-      expect(await ad.reveal()).to.be.ok
-
-      const degenCost = await ad.getCurrentCost()
-      expect(await ad.publicMint(5, { value: degenCost.mul(5) })).to.be.ok
-
-      const baseUri = 'baseUri/'
-
-      expect(await ad.setBaseURI(baseUri)).to.be.ok
-
-      const index = 3
-      expect(await ad.tokenURI(3)).to.equal(
-        baseUri + index.toString() + '.json'
-      )
+      expect(
+        await bobs.publicMint(testConfig.max_mint, {
+          value: cost.mul(testConfig.max_mint),
+        })
+      ).to.be.ok
+      expect(
+        await bobs.publicMint(testConfig.max_mint, {
+          value: cost.mul(testConfig.max_mint),
+        })
+      ).to.be.ok
     })
   })
 
   describe('Whitelist checks', function () {
     let rootTree
-    let hexProofs: any[]
+    let hexProofs: BytesLike[][]
     let mintCost: BigNumber
     beforeEach(async function () {
       mintCost = await ad.getCurrentCost()
@@ -304,30 +258,30 @@ describe(`${testConfig.contract_name} contract`, function () {
       const tree = new MerkleTree(leaves, keccak256, { sortPairs: true })
       rootTree = tree.getRoot()
       await ad.setMerkleRoot(rootTree)
-      hexProofs = [owner.address, bob.address, alis.address].map((x) =>
-        tree.getHexProof(keccak256(x))
-      )
+      hexProofs = [owner.address, bob.address, alis.address].map((x) => {
+        return tree.getHexProof(keccak256(x))
+      })
     })
     it('Non Whitelisted user cant buy on PreSale', async function () {
       await expect(
-        ad.connect(bob).preMint(1, hexProofs[1], {
+        ad.connect(bob).preMint(1, hexProofs[1]!, {
           value: mintCost,
         })
       ).to.be.revertedWith('Invalid Merkle Proof')
 
       await expect(
-        ad.connect(owner).preMint(1, hexProofs[0], {
+        ad.connect(owner).preMint(1, hexProofs[0]!, {
           value: mintCost,
         })
       ).to.be.revertedWith('Invalid Merkle Proof')
 
-      await assertPreMint(ad, mintCost, alis, hexProofs[2], 1)
+      await expect(ads.preMint(1, hexProofs[2]!, { value: mintCost })).to.ok
     })
 
     it("Presale can't open on PublicSale", async function () {
       await ad.setPresale(false)
       await expect(
-        ad.connect(bob).preMint(1, hexProofs[2], { value: mintCost })
+        ad.connect(bob).preMint(1, hexProofs[2]!, { value: mintCost })
       ).to.be.revertedWith('Presale is not active.')
     })
 
@@ -341,26 +295,34 @@ describe(`${testConfig.contract_name} contract`, function () {
       hexProofs = [owner.address, bob.address, alis.address].map((x) =>
         tree.getHexProof(keccak256(x))
       )
-      await assertPreMint(ad, mintCost, owner, hexProofs[0], 1)
-      await assertPreMint(ad, mintCost, bob, hexProofs[1], 1, 1)
-      await assertPreMint(ad, mintCost, alis, hexProofs[2], 1, 2)
+      await expect(
+        ad.connect(owner).preMint(1, hexProofs[2]!, { value: mintCost })
+      ).to.ok
+      await expect(bobs.preMint(1, hexProofs[2]!, { value: mintCost })).to.ok
+      await expect(ads.preMint(1, hexProofs[2]!, { value: mintCost })).to.ok
     })
 
     it(`Whitelisted user can only buy ${testConfig.presale_max_mint} nft`, async function () {
-      mintCost = (await ad.getCurrentCost()).mul(5)
+      const buyCost = (await ad.getCurrentCost()).mul(
+        testConfig.presale_max_mint
+      )
 
-      await assertPreMint(ad, mintCost, alis, hexProofs[2], 5)
+      expect(
+        await ads.preMint(testConfig.presale_max_mint, hexProofs[2]!, {
+          value: buyCost,
+        })
+      ).to.be.ok
       await expect(
-        ad.connect(alis).preMint(1, hexProofs[2], { value: mintCost })
+        ads.preMint(1, hexProofs[2]!, { value: buyCost })
       ).to.be.revertedWith('Already claimed max')
     })
 
     it('Whitelisted user can buy 3 + 2', async function () {
       mintCost = (await ad.getCurrentCost()).mul(3)
-      await assertPreMint(ad, mintCost, alis, hexProofs[2], 3)
-      await assertPreMint(ad, mintCost, alis, hexProofs[2], 2, 3)
+      expect(await ads.preMint(3, hexProofs[2]!, { value: mintCost })).to.ok
+      expect(await ads.preMint(2, hexProofs[2]!, { value: mintCost })).to.ok
       await expect(
-        ad.connect(alis).preMint(1, hexProofs[2], { value: mintCost })
+        ad.connect(alis).preMint(1, hexProofs[2]!, { value: mintCost })
       ).to.be.revertedWith('Already claimed max')
     })
 
@@ -368,7 +330,7 @@ describe(`${testConfig.contract_name} contract`, function () {
       const amount = testConfig.presale_max_mint + 1
       const cost = (await ad.getCurrentCost()).mul(amount)
       await expect(
-        ad.connect(alis).preMint(amount, hexProofs[2], { value: cost })
+        ad.connect(alis).preMint(amount, hexProofs[2]!, { value: cost })
       ).to.be.revertedWith('Already claimed max')
     })
 
@@ -377,64 +339,62 @@ describe(`${testConfig.contract_name} contract`, function () {
       await ad.pause()
 
       await expect(
-        ad.connect(alis).preMint(1, hexProofs[2], {
+        ad.connect(alis).preMint(1, hexProofs[2]!, {
           value: cost,
         })
       ).to.revertedWith('Pausable: paused')
       await ad.unpause()
-      await assertPreMint(ad, cost, alis, hexProofs[2], 1)
+      expect(await ads.preMint(1, hexProofs[2]!, { value: cost })).to.ok
     })
 
     it('Non WhiteList user block after Whitelisted user buy', async function () {
       const amount = testConfig.presale_max_mint
       mintCost = (await ad.getCurrentCost()).mul(testConfig.presale_max_mint)
-      await assertPreMint(ad, mintCost, alis, hexProofs[2], amount)
+      expect(await ads.preMint(amount, hexProofs[2]!, { value: mintCost })).to
+        .ok
       await expect(
-        ad.connect(alis).preMint(1, hexProofs[2], { value: mintCost })
+        ad.connect(alis).preMint(1, hexProofs[2]!, { value: mintCost })
       ).to.be.revertedWith('Already claimed max')
       await expect(
-        ad.connect(bob).preMint(1, hexProofs[1], { value: mintCost })
+        ad.connect(bob).preMint(1, hexProofs[1]!, { value: mintCost })
       ).to.be.revertedWith('Invalid Merkle Proof')
     })
 
     it('Pre Sale Price Boundary Check', async () => {
       const cost = ethers.utils.parseUnits(testConfig.price_pre.toString())
-      await assertPreMint(ad, cost, alis, hexProofs[2], 1)
-      await assertPreMint(ad, cost.add(1), alis, hexProofs[2], 1, 1)
+      expect(await ads.preMint(1, hexProofs[2]!, { value: cost })).to.ok
+      expect(await ads.preMint(1, hexProofs[2]!, { value: cost.add(1) })).to.ok
       await expect(
-        ad.connect(alis).preMint(1, hexProofs[2], { value: cost.sub(1) })
+        ad.connect(alis).preMint(1, hexProofs[2]!, { value: cost.sub(1) })
       ).to.revertedWith('Not enough funds')
-
-      expect(await ad.totalSupply()).to.equal(2)
     })
 
     it('Pre Sale setPrice Check', async () => {
       const cost = ethers.utils.parseUnits('0.001')
       expect(await ad.setPreCost(cost))
-      await assertPreMint(ad, cost, alis, hexProofs[2], 1)
-      await assertPreMint(ad, cost.add(1), alis, hexProofs[2], 1, 1)
+      expect(await ads.preMint(1, hexProofs[2]!, { value: cost })).to.ok
+      expect(await ads.preMint(1, hexProofs[2]!, { value: cost.add(1) })).to.ok
       await expect(
-        ad.connect(alis).preMint(1, hexProofs[2], { value: cost.sub(1) })
+        ads.preMint(1, hexProofs[2]!, { value: cost.sub(1) })
       ).to.revertedWith('Not enough funds')
-
-      expect(await ad.totalSupply()).to.equal(2)
     })
 
     it('Block over allocate Check', async () => {
-      await assertPreMint(ad, mintCost.mul(5), alis, hexProofs[2], 5)
+      expect(await ads.preMint(5, hexProofs[2]!, { value: mintCost.mul(5) })).to
+        .be.ok
       expect(
         await ad
           .connect(alis)
           ['safeTransferFrom(address,address,uint256)'](
             alis.address,
             bob.address,
-            1
+            201
           )
       ).to.be.ok
       expect(await ad.balanceOf(bob.address)).to.equal(1)
       expect(await ad.balanceOf(alis.address)).to.equal(4)
       await expect(
-        ad.connect(alis).preMint(1, hexProofs[2], { value: mintCost })
+        ad.connect(alis).preMint(1, hexProofs[2]!, { value: mintCost })
       ).to.be.revertedWith('Already claimed max')
     })
   })

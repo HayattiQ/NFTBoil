@@ -1,13 +1,14 @@
 import { ethers } from 'hardhat'
 import type { BigNumber } from 'ethers'
 import type { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
-const { expect } = require('chai')
+import { expect } from 'chai'
 
 export const testConfig = {
   price: 0.02,
   price_pre: 0.01,
-  contract_name: 'NFTBoilMerkleA',
+  contract_name: 'NFTBoilMerkle',
   max_supply: 5000,
+  initialSupply: 198,
   max_mint: 10,
   presale_max_mint: 5,
   symbol: 'BOIL',

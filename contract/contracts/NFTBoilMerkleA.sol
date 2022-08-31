@@ -14,19 +14,19 @@ contract NFTBoilMerkleA is ERC721A, ERC2981 , Ownable, Pausable {
 
     string private baseURI = "";
 
-    uint256 public preCost = 0.025 ether;
-    uint256 public publicCost = 0.04 ether;
+    uint256 public preCost = 0.01 ether;
+    uint256 public publicCost = 0.02 ether;
     bool public presale = true;
     uint256 public presale_max = 5;
     bool public mintable = true;
     address public royaltyAddress;
     uint96 public royaltyFee = 500;
 
-    uint256 constant public MAX_SUPPLY = 2200;
+    uint256 constant public MAX_SUPPLY = 5000;
     string constant private BASE_EXTENSION = ".json";
-    uint256 constant private PUBLIC_MAX_PER_TX = 5;
-    address constant private BULK_TRANSFER_ADDRESS = 0x0000000000000000000000000000000000000000;
-    address constant private DEFAULT_ROYALITY_ADDRESS = 0x0000000000000000000000000000000000000000;
+    uint256 constant private PUBLIC_MAX_PER_TX = 10;
+    address constant private BULK_TRANSFER_ADDRESS = 0xFbD1977ebf1Af6a492754B096304fC44459371B8;
+    address constant private DEFAULT_ROYALITY_ADDRESS = 0xFbD1977ebf1Af6a492754B096304fC44459371B8;
     bytes32 public merkleRoot;
     mapping(address => uint256) private whiteListClaimed;
 
