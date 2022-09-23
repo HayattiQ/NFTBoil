@@ -13,6 +13,8 @@ module.exports = {
 
   ignorePatterns: ['frontend/src/**'],
   plugins: ['@typescript-eslint'],
-  rules: {},
+  rules: {
+    '@typescript-eslint/ban-ts-comment': 'off',
+  },
   root: true,
 }
