@@ -1,9 +1,8 @@
 import { ethers } from 'hardhat'
 import type { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { testConfig, assertPublicMintSuccess } from './test-helpers'
-// @ts-ignore
 import type { NFTBoilMerkle } from '../typechain-types'
-const { expect } = require('chai')
+import { expect } from 'chai'
 
 describe('Contract OwnerFunction test', function () {
   let owner: SignerWithAddress
@@ -13,10 +12,10 @@ describe('Contract OwnerFunction test', function () {
 
   beforeEach(async function () {
     // @ts-ignore
-    ;[owner, bob, alis] = await ethers.getSigners()
+    [owner, bob, alis] = await ethers.getSigners()
     const contract = await ethers.getContractFactory(testConfig.contract_name)
     ad = (await contract.deploy(
-      testConfig.contract_name,
+      'NFTBoilMerkleA',
       testConfig.symbol
     )) as NFTBoilMerkle
     await ad.deployed()
@@ -27,12 +26,13 @@ describe('Contract OwnerFunction test', function () {
 
   describe('OwnerFunction checks', function () {
     it('Owner can ownermint', async () => {
-      await expect(ad.connect(owner).ownerMint(owner.address, 1)).to.be.ok
+      return expect(await ad.connect(owner).ownerMint(owner.address, 1)).to.be
+        .ok
     })
 
     it('Ownership Transform', async () => {
       await ad.connect(owner).transferOwnership(bob.address)
-      await expect(ad.connect(bob).ownerMint(bob.address, 1)).to.be.ok
+      return expect(await ad.connect(bob).ownerMint(bob.address, 1)).to.be.ok
     })
 
     it('Withdraw funds', async () => {
