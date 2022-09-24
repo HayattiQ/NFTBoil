@@ -15,6 +15,7 @@
   "author": "HayattiQ",
   "license": "MIT",
   "dependencies": {
+    "@a16z/contracts": "^0.0.8",
     "@openzeppelin/contracts": "^4.6.0",
     "@poanet/solidity-flattener": "^3.0.7",
     "dotenv": "^16.0.0",

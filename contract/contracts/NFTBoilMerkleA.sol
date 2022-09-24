@@ -1,5 +1,10 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.16;
+
+/// @title: NFTBoil
+/// @author: HayattiQ
+/// @dev: This contract using NFTBoil (https://github.com/HayattiQ/NFTBoil)
+
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
@@ -8,8 +13,10 @@ import "@openzeppelin/contracts/token/common/ERC2981.sol";
 import "erc721a/contracts/ERC721A.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
+// This NFT License is a16z Can't be Evil Lisence
+import {LicenseVersion, CantBeEvil} from "@a16z/contracts/licenses/CantBeEvil.sol";
 
-contract NFTBoilMerkleA is ERC721A, ERC2981 , Ownable, Pausable {
+contract NFTBoilMerkleA is ERC721A, ERC2981 , Ownable, Pausable, CantBeEvil(LicenseVersion.CBE_NECR_HS)  {
     using Strings for uint256;
 
     string private baseURI = "";
@@ -30,7 +37,6 @@ contract NFTBoilMerkleA is ERC721A, ERC2981 , Ownable, Pausable {
     bytes32 public merkleRoot;
     mapping(address => uint256) private whiteListClaimed;
 
-
     constructor(
         string memory _name,
         string memory _symbol
@@ -41,7 +47,6 @@ contract NFTBoilMerkleA is ERC721A, ERC2981 , Ownable, Pausable {
             _initializeOwnershipAt(i * 10);
         }
     }
-
 
     modifier whenMintable() {
         require(mintable == true, "Mintable: paused");
@@ -191,15 +196,17 @@ contract NFTBoilMerkleA is ERC721A, ERC2981 , Ownable, Pausable {
 
     function supportsInterface(
         bytes4 interfaceId
-    ) public view virtual override(ERC721A, ERC2981) returns (bool) {
+    ) public view virtual override(ERC721A, ERC2981,CantBeEvil) returns (bool) {
         // Supports the following `interfaceId`s:
         // - IERC165: 0x01ffc9a7
         // - IERC721: 0x80ac58cd
         // - IERC721Metadata: 0x5b5e139f
         // - IERC2981: 0x2a55205a
+        // - CantBeEvil
         return
             ERC721A.supportsInterface(interfaceId) ||
-            ERC2981.supportsInterface(interfaceId);
+            ERC2981.supportsInterface(interfaceId) ||
+            CantBeEvil.supportsInterface(interfaceId);
     }
 
 }
