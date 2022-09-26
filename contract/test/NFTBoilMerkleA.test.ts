@@ -66,7 +66,7 @@ describe(`NFTBoilMerkleA contract`, function () {
       await ad.setPresale(true)
       await expect(
         ad.connect(bob).publicMint(1, { value: degenCost })
-      ).to.revertedWith('Presale is active.')
+      ).to.be.revertedWith('Presale is active.')
     })
 
     it('Non-owner cannot mint without enough balance', async () => {
@@ -78,24 +78,25 @@ describe(`NFTBoilMerkleA contract`, function () {
     it('Owner and Bob mint', async () => {
       const degenCost = await ad.getCurrentCost()
       expect(await ad.totalSupply()).to.equal(testConfig.initialSupply)
-      let tokenId = await ad.totalSupply()
-      expect(
-        await ad.publicMint(1, {
-          value: degenCost,
-        })
-      )
-        .to.emit(ad, 'Transfer')
-        .withArgs(ethers.constants.AddressZero, owner.address, tokenId.add(1))
 
-      expect(await ad.totalSupply()).to.equal(testConfig.initialSupply + 1)
-      tokenId = await ad.totalSupply()
-      expect(
-        await ad.connect(bob).publicMint(1, {
+      let tokenId = await ad.totalSupply()
+      await expect(
+        ad.publicMint(1, {
           value: degenCost,
         })
       )
         .to.emit(ad, 'Transfer')
-        .withArgs(ethers.constants.AddressZero, bob.address, tokenId.add('1'))
+        .withArgs(ethers.constants.AddressZero, owner.address, tokenId)
+      expect(await ad.totalSupply()).to.equal(testConfig.initialSupply + 1)
+
+      tokenId = await ad.totalSupply()
+      await expect(
+        ad.connect(bob).publicMint(1, {
+          value: degenCost,
+        })
+      )
+        .to.emit(ad, 'Transfer')
+        .withArgs(ethers.constants.AddressZero, bob.address, tokenId)
 
       expect(await ad.totalSupply()).to.equal(testConfig.initialSupply + 2)
     })
@@ -116,8 +117,8 @@ describe(`NFTBoilMerkleA contract`, function () {
       const degenCost = await ad.getCurrentCost()
       const tokenId = await ad.totalSupply()
 
-      expect(
-        await ad.connect(bob).publicMint(testConfig.max_mint, {
+      await expect(
+        ad.connect(bob).publicMint(testConfig.max_mint, {
           value: degenCost.mul(testConfig.max_mint),
         })
       )
@@ -125,7 +126,7 @@ describe(`NFTBoilMerkleA contract`, function () {
         .withArgs(
           ethers.constants.AddressZero,
           bob.address,
-          tokenId.add(testConfig.max_mint.toString())
+          tokenId.add(testConfig.max_mint - 1)
         )
     })
 
@@ -133,16 +134,16 @@ describe(`NFTBoilMerkleA contract`, function () {
       const degenCost = await ad.getCurrentCost()
       const tokenId = await ad.totalSupply()
 
-      expect(
-        await ad.connect(bob).publicMint(1, {
+      await expect(
+        ad.connect(bob).publicMint(1, {
           value: degenCost.mul(1),
         })
       )
         .to.emit(ad, 'Transfer')
-        .withArgs(ethers.constants.AddressZero, bob.address, tokenId.add('1'))
+        .withArgs(ethers.constants.AddressZero, bob.address, tokenId)
 
-      expect(
-        await ad.connect(bob).publicMint(testConfig.max_mint - 1, {
+      await expect(
+        ad.connect(bob).publicMint(testConfig.max_mint - 1, {
           value: degenCost.mul(testConfig.max_mint - 1),
         })
       )
@@ -150,7 +151,7 @@ describe(`NFTBoilMerkleA contract`, function () {
         .withArgs(
           ethers.constants.AddressZero,
           bob.address,
-          tokenId.add((testConfig.max_mint - 1).toString())
+          tokenId.add(testConfig.max_mint - 1)
         )
     })
 
@@ -160,7 +161,7 @@ describe(`NFTBoilMerkleA contract`, function () {
         ad.connect(bob).publicMint(testConfig.max_mint + 1, {
           value: degenCost.mul(testConfig.max_mint + 1),
         })
-      ).to.revertedWith('Mint amount over')
+      ).to.be.revertedWith('Mint amount over')
     })
 
     it('Bob fails to mints when paused', async () => {
@@ -171,7 +172,7 @@ describe(`NFTBoilMerkleA contract`, function () {
         ad.connect(bob).publicMint(testConfig.max_mint + 1, {
           value: cost.mul(testConfig.max_mint + 1),
         })
-      ).to.revertedWith('Pausable: paused')
+      ).to.be.revertedWith('Pausable: paused')
       await ad.unpause()
       expect(
         await ad.connect(bob).publicMint(1, {
@@ -185,16 +186,16 @@ describe(`NFTBoilMerkleA contract`, function () {
 
       await expect(
         ad.connect(bob).publicMint(2, { value: degenCost })
-      ).to.revertedWith('Not enough funds')
+      ).to.be.revertedWith('Not enough funds')
     })
 
     it('Public Sale Price Boundary Check', async () => {
       const cost = ethers.utils.parseUnits(testConfig.price.toString())
       expect(await bobs.publicMint(1, { value: cost })).to.be.ok
       expect(await bobs.publicMint(1, { value: cost.add(1) })).to.be.ok
-      await expect(bobs.publicMint(1, { value: cost.sub(1) })).to.revertedWith(
-        'Not enough funds'
-      )
+      await expect(
+        bobs.publicMint(1, { value: cost.sub(1) })
+      ).to.be.revertedWith('Not enough funds')
     })
 
     it('Public Sale Price Change Check', async () => {
@@ -204,7 +205,7 @@ describe(`NFTBoilMerkleA contract`, function () {
       expect(await bobs.publicMint(1, { value: cost.add(1) })).to.be.ok
       await expect(
         ad.connect(bob).publicMint(1, { value: cost.sub(1) })
-      ).to.revertedWith('Not enough funds')
+      ).to.be.revertedWith('Not enough funds')
     })
 
     it(`${testConfig.max_mint} mint Public Sale Price Boundary Check`, async () => {
@@ -223,14 +224,14 @@ describe(`NFTBoilMerkleA contract`, function () {
         ad.connect(bob).publicMint(testConfig.max_mint, {
           value: cost.mul(testConfig.max_mint).sub(1),
         })
-      ).to.revertedWith('Not enough funds')
+      ).to.be.revertedWith('Not enough funds')
     })
 
     it('Pre Sale price can not buy', async () => {
       const cost = ethers.utils.parseUnits(testConfig.price_pre.toString())
       await expect(
         ad.connect(bob).publicMint(1, { value: cost.sub(1) })
-      ).to.revertedWith('Not enough funds')
+      ).to.be.revertedWith('Not enough funds')
     })
 
     it('Public sale have no wallet restriction (only TX)', async () => {
@@ -275,13 +276,13 @@ describe(`NFTBoilMerkleA contract`, function () {
         })
       ).to.be.revertedWith('Invalid Merkle Proof')
 
-      await expect(ads.preMint(1, hexProofs[2]!, { value: mintCost })).to.ok
+      expect(await ads.preMint(1, hexProofs[2]!, { value: mintCost })).to.ok
     })
 
     it("Presale can't open on PublicSale", async function () {
       await ad.setPresale(false)
       await expect(
-        ad.connect(bob).preMint(1, hexProofs[2]!, { value: mintCost })
+        ad.connect(bob).preMint(1, hexProofs[1]!, { value: mintCost })
       ).to.be.revertedWith('Presale is not active.')
     })
 
@@ -295,11 +296,12 @@ describe(`NFTBoilMerkleA contract`, function () {
       hexProofs = [owner.address, bob.address, alis.address].map((x) =>
         tree.getHexProof(keccak256(x))
       )
-      await expect(
-        ad.connect(owner).preMint(1, hexProofs[2]!, { value: mintCost })
-      ).to.ok
-      await expect(bobs.preMint(1, hexProofs[2]!, { value: mintCost })).to.ok
-      await expect(ads.preMint(1, hexProofs[2]!, { value: mintCost })).to.ok
+
+      expect(
+        await ad.connect(owner).preMint(1, hexProofs[0]!, { value: mintCost })
+      ).to.be.ok
+      expect(await bobs.preMint(1, hexProofs[1]!, { value: mintCost })).to.be.ok
+      expect(await ads.preMint(1, hexProofs[2]!, { value: mintCost })).to.be.ok
     })
 
     it(`Whitelisted user can only buy ${testConfig.presale_max_mint} nft`, async function () {
@@ -319,8 +321,8 @@ describe(`NFTBoilMerkleA contract`, function () {
 
     it('Whitelisted user can buy 3 + 2', async function () {
       mintCost = (await ad.getCurrentCost()).mul(3)
-      expect(await ads.preMint(3, hexProofs[2]!, { value: mintCost })).to.ok
-      expect(await ads.preMint(2, hexProofs[2]!, { value: mintCost })).to.ok
+      expect(await ads.preMint(3, hexProofs[2]!, { value: mintCost })).to.be.ok
+      expect(await ads.preMint(2, hexProofs[2]!, { value: mintCost })).to.be.ok
       await expect(
         ad.connect(alis).preMint(1, hexProofs[2]!, { value: mintCost })
       ).to.be.revertedWith('Already claimed max')
@@ -342,7 +344,7 @@ describe(`NFTBoilMerkleA contract`, function () {
         ad.connect(alis).preMint(1, hexProofs[2]!, {
           value: cost,
         })
-      ).to.revertedWith('Pausable: paused')
+      ).to.be.revertedWith('Pausable: paused')
       await ad.unpause()
       expect(await ads.preMint(1, hexProofs[2]!, { value: cost })).to.ok
     })
@@ -366,7 +368,7 @@ describe(`NFTBoilMerkleA contract`, function () {
       expect(await ads.preMint(1, hexProofs[2]!, { value: cost.add(1) })).to.ok
       await expect(
         ad.connect(alis).preMint(1, hexProofs[2]!, { value: cost.sub(1) })
-      ).to.revertedWith('Not enough funds')
+      ).to.be.revertedWith('Not enough funds')
     })
 
     it('Pre Sale setPrice Check', async () => {
@@ -376,7 +378,7 @@ describe(`NFTBoilMerkleA contract`, function () {
       expect(await ads.preMint(1, hexProofs[2]!, { value: cost.add(1) })).to.ok
       await expect(
         ads.preMint(1, hexProofs[2]!, { value: cost.sub(1) })
-      ).to.revertedWith('Not enough funds')
+      ).to.be.revertedWith('Not enough funds')
     })
 
     it('Block over allocate Check', async () => {
