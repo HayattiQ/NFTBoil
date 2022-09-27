@@ -21,11 +21,14 @@
     "@nomiclabs/hardhat-waffle": "^2.0.3",
     "@openzeppelin/contracts": "^4.7.3",
     "@poanet/solidity-flattener": "^3.0.8",
+    "@typechain/ethers-v5": "^10.1.0",
+    "@typechain/hardhat": "^6.1.3",
     "dotenv": "^16.0.2",
     "erc721a": "^4.2.3",
     "ethereum-waffle": "^3.4.4",
     "ethers": "^5.7.1",
     "hardhat": "^2.11.2",
-    "readline": "^1.3.0"
+    "readline": "^1.3.0",
+    "typechain": "^8.1.0"
   }
 }

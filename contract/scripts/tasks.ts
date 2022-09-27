@@ -55,7 +55,7 @@ task('snapshot', 'Take Snapshot NFT')
       hre,
       getProvider(hre)
     )
-    const totalSupply: number = Number(await contract['totalSupply']())
+    const totalSupply = Number(await contract['totalSupply']())
     console.log(`totalSupply: ${totalSupply}`)
     if (fs.existsSync(taskArguments.filename)) {
       fs.truncateSync(taskArguments.filename)
