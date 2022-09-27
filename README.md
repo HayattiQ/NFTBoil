@@ -22,22 +22,22 @@ NFTboil は monorepo で作成されています。
 - generate - ジェネレーティブ用の画像生成をするプログラムです。
 - frontend - mint 用の Web サイトです。
 
-また、Rinkeby testnet にて今回の NFTBoil に初期設定されているデータをもとに NFT minting サイトを作っています。
-https://nftboil.netlify.app/
-
 ## Install
 
-`npm install`
-WorkSpace の設定があるため、ルートディレクトリで npm install の設定をすると全ての設定が一括インストールできます
+`pnpm install`
+こちらの package の推奨は pnpm ですが、 npm でも動くとは思います。
+WorkSpace の設定があるため、ルートディレクトリで pnpm install の設定をすると全ての設定が一括インストールできます
 
 ## コントラクトの設定
 
-NFTBoil において、コントラクトを二種類用意しています。この二つのコントラクトの違いは、
+NFTBoil において、コントラクトを 3 種類用意しています。この 3 つのコントラクトの違いは、
 プレセールの実装に MerkleTree を利用するかどうかです。
 デフォルトの設定は MerkleTree を利用するプログラムですので、もし MerkleTree を利用しない
-NFT コントラクトを実装する場合は、AstarCats.sol を利用してください。
+NFT コントラクトを実装する場合は、NFTBoil.sol を利用してください。
+また、ERC721A を利用したいときは NFTBoilMerkleA.sol を利用します。
 
-- NFTBoilMerkle.sol (デフォルト) - MerkleTree
+- NFTBoilMerkleA.sol (ERC721A) - MerkleTree
+- NFTBoilMerkle.sol (ERC721) - MerkleTree
 - NFTBoil.sol - MerkleTree なし
 
 ### env ファイルの設定
@@ -92,7 +92,7 @@ Ethereum チェーンでデプロイする前提であれば、まずはテス�
 その際は、まず etherscan のコントラクトのページに行き、そこから「vefify and publish」で verify 可能です。
 また、コントラクトを verify するためには、Flat 化したソースコードが必要です。こちらのコマンドで flat 化できます。
 
-`npm run flatten`
+`pnpm run flatten`
 
 out/ ファイルにて生成されるコードを、etherscan の verify にて利用してください。
 
@@ -162,7 +162,7 @@ https://note.com/hayattiq/n/n752d51d07cda
 
 画像ファイル生成に利用した csv ファイルを使って、そのまま JSON ファイルを作成することも可能です。
 
-` npm run tojson`
+` pnpm run tojson`
 こちらのコマンドで JSON ファイルを作成することができます。
 通常のコマンドですと、CSV ファイルの順番通りに JSON ファイルを作成します。
 
@@ -170,8 +170,8 @@ https://note.com/hayattiq/n/n752d51d07cda
 本プログラムを利用してシャッフルすることが可能です。
 シャッフルは metashu プログラムを利用しますが、そのプログラムで利用するため、json 出力時に pack します。
 
-```npm run tojson -- -p
-npm run shuffle -- -s [[[random salt string]]]
+```pnpm run tojson -- -p
+pnpm run shuffle -- -s [[[random salt string]]]
 for f in json/*; do mv "$f" "$f.json"; done
 ```
 
@@ -215,4 +215,3 @@ MerkleTree に利用するアドレスを入れてください。
 ERC721A においては、ガス代を削減するために多くの有用な関数が含まれます。
 イーサリアムチェーンにおいて NFT を発行する場合は、ERC721A を利用したほうがよい結果になることが多いです。
 今回、実運用で使ったコントラクトをもとに、「NFTBoilMerkleA.sol」を配置しました。
-こちらは、まだ専用のテストコードなどは無いので、実運用をする場合は充分テストをしたうえでご利用ください。
