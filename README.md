@@ -24,9 +24,9 @@ NFTboil は monorepo で作成されています。
 
 ## Install
 
-`pnpm install`
+`pnpm -r install`
 こちらの package の推奨は pnpm ですが、 npm でも動くとは思います。
-WorkSpace の設定があるため、ルートディレクトリで pnpm install の設定をすると全ての設定が一括インストールできます
+WorkSpace の設定はまだしていないので、 -r をつけて直接インストールします
 
 ## コントラクトの設定
 
