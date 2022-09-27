@@ -7,6 +7,9 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log\*
 
+package-lock.json
+yarn.lock
+
 # Diagnostic reports (https://nodejs.org/api/report.html)
 
 report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
@@ -104,7 +107,3 @@ generate/assets/
 
 # MAC
 .DS_Store
-
-
-
-
