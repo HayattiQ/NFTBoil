@@ -4,6 +4,9 @@
   "version": "1.0.0",
   "description": "NFTBoil collection",
   "main": "index.js",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "prepare": "husky install"
   },
